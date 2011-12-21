@@ -1,0 +1,11 @@
+= Real-Time Interaction final project
+
+This is the final project for the Real-Time Interaction subject
+for the masters {SMC}[http://www.upf.edu/smc/]
+and {CSIM}[http://csim.upf.edu/] from Pompeu Fabra University.
+
+== Authors
+
+* {Òscar Casanovas}[mailto:oscarlabs@gmail.com]
+* {Jordi Hidalgo}[https://github.com/ratatech]
+* {Hèctor Parra}[http://about.me/hector.parra]
