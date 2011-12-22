@@ -19,10 +19,10 @@ public class Synthesizer extends Instrument {
   }
 
   public void draw() {
-    p5.translate(p5.mouseX,p5.mouseY);
+    //p5.translate(p5.mouseX,p5.mouseY);
     //automatic rotation
-    cube.spinnyRotateX(p5.mouseX);
-    cube.spinnyRotateY(p5.mouseY);
+    //cube.spinnyRotateX(p5.mouseX);
+    //cube.spinnyRotateY(p5.mouseY);
     //cube.spinnyRotateZ(p5.frameCount * p5.PI / 5);
     //draw cube
     cube.draw();

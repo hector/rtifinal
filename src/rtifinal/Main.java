@@ -19,7 +19,7 @@ public class Main extends PApplet {
   public void draw() {
     background(RGB, 100, 120, 34);
     lights();
-    synth.draw();
+    synth.draw();  
   }
 
   public void keyPressed() {
