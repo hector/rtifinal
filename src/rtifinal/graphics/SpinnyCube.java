@@ -65,23 +65,12 @@ public class SpinnyCube extends Cube {
   public void spinnyRotateZ(float angle) {
     angleZ = angle;
   }
-  /*
-   * SpinnyCube
-   * (subclass)
-   * create()
-   * methods
-   * will
-   * override
-   * Cube
-   * (superclass)
-   * create()
-   * methods.
-   */
 
-  public void create() {
+  public void draw() {
 // draw cube
     spinnyRotateXYZ();
-    applet().stroke(0);
+    applet().fill(p5.color(134));
+    //applet().stroke();
     for (int i = 0; i < 6; i++) {
       applet().beginShape(applet().QUADS);
       for (int j = 0; j < 4; j++) {
@@ -91,7 +80,7 @@ public class SpinnyCube extends Cube {
     }
   }
 
-  public void create(int[]quadBG){
+  public void draw(int[]quadBG){
 // draw cube
 spinnyRotateXYZ();
     for (int i = 0; i < 6; i++) {
