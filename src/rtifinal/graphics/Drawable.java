@@ -15,6 +15,18 @@ public abstract class Drawable {
     return Main.applet;
   }
   
+  protected static float cos(float angle) {
+    return PApplet.cos(angle);
+  }
+  
+  protected static float sin(float angle) {
+    return PApplet.sin(angle);
+  }
+  
+  protected static float radians(float degrees) {
+    return PApplet.radians(degrees);
+  }
+  
   public abstract void draw();
   
 }

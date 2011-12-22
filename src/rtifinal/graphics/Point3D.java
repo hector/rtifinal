@@ -5,12 +5,10 @@ package rtifinal.graphics;
  hold each 3D vertex
  */
 
-import processing.core.*;
-
 public class Point3D {
 
     public float x, y, z;
-// constructors
+    // constructors
     public Point3D() {
     }
 

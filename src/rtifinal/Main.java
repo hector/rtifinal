@@ -6,13 +6,6 @@ import rtifinal.graphics.*;
 
 public class Main extends PApplet {
 
-  // Rotation of a Custom Cube Around the X-, Y-, and Z-Axes
-// custom Cube reference variable
-  SpinnyCube c1;
-
-// array to hold different face colors
-  int[] quadBG = new int[6];
-
   public static PApplet applet;
   int pts = 0;
   public Synthesizer synth;
@@ -21,25 +14,19 @@ public class Main extends PApplet {
     Main.applet = this;
     size(screen.width, screen.height, P3D);
     synth = new Synthesizer();
-
   }
 
   public void draw() {
     background(RGB, 100, 120, 34);
     lights();
     synth.draw();
-    
- 
   }
 
   public void keyPressed() {
-
     if (key == CODED) {
-// pts
       if (keyCode == UP) {
         if (pts < 1000) {
           pts = pts + 10;
-
         }
       } else if (keyCode == DOWN) {
         if (pts > -1000) {
@@ -47,8 +34,6 @@ public class Main extends PApplet {
         }
       }
     }
-    println("pts " + pts);
-
   }
 
   // main method to launch this Processing sketch from computer
