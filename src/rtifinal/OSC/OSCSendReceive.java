@@ -18,7 +18,7 @@ public class OSCSendReceive {
 
   public OSCSendReceive() {
     myRemoteLocation = new NetAddress("193.145.42.220", 12000);
-    oscP5 = new OscP5(this, 8080);
+    oscP5 = new OscP5(this, 9000);
   }
 
   public void oscSend() {
@@ -27,10 +27,10 @@ public class OSCSendReceive {
     OscMessage myMessage2 = new OscMessage("/test2");
     OscMessage myMessage3 = new OscMessage("/test3");
 
-    myMessage1.add((int)xacc);
-    myMessage2.add((int)yacc);
+    myMessage1.add((int) xacc);
+    myMessage2.add((int) yacc);
     myMessage3.add(3);
-    
+
     //System.out.println("TestOSCsend " + (int)xacc);
     //System.out.println("TestOSCx " + (int)yacc);
 
@@ -41,17 +41,18 @@ public class OSCSendReceive {
 
   public void oscEvent(OscMessage theOscMessage) {
 
-    if (theOscMessage.checkAddrPattern("/accelerometer") == true) {
+    if (theOscMessage.checkAddrPattern("/accxyz") == true) {
       if (theOscMessage.checkTypetag("fff")) {
-
-        yacc = theOscMessage.get(0).floatValue();
-        xacc = theOscMessage.get(1).floatValue();
+        xacc = theOscMessage.get(0).floatValue();
+        yacc = theOscMessage.get(1).floatValue();
         zacc = theOscMessage.get(2).floatValue();
-        //System.out.println("TestOSCReceive " + xacc);
-        //System.out.println("TestOSCx " + yacc);
-
+        System.out.println("TestOSCReceiveX " + xacc);
+        System.out.println("TestOSCReceiveY " + yacc);
+        System.out.println("TestOSCReceiveZ " + zacc);
+        
       }
     }
+
 
   }
 }
