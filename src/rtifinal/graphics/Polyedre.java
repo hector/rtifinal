@@ -14,4 +14,12 @@ public abstract class Polyedre extends Drawable {
       polygon.selfDraw();
     }
   }
+  
+  @Override
+  public void setColor(int color) {
+    super.setColor(color);
+    for(Polygon3D polygon : polygons) {
+      polygon.setColor(color);
+    }    
+  }
 }

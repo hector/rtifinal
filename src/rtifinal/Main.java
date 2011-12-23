@@ -1,6 +1,7 @@
 package rtifinal;
 
 import processing.core.*;
+import rtifinal.effects.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
 
@@ -41,16 +42,27 @@ public class Main extends PApplet {
 
   @Override
   public void keyPressed() {
-    if (key == CODED) {
-      if (keyCode == UP) {
-        if (pts < 1000) {
-          pts = pts + 10;
-        }
-      } else if (keyCode == DOWN) {
-        if (pts > -1000) {
-          pts = pts - 10;
-        }
-      }
+//    if (key == CODED) {
+//      if (keyCode == UP) {
+//        
+//      } else if (keyCode == DOWN) {
+//        if (pts > -1000) {
+//          pts = pts - 10;
+//        }
+//      }
+//    }
+    if(key == '1') {
+      synth.addReverb(new Reverb());
+    } else if(key == '2') {
+      synth.addDelay(new Delay());
+    } else if(key == '3') {
+      synth.addDistortion(new Distortion());
+    } else if(key == '4') {
+      synth.removeReverb();
+    } else if(key == '5') {
+      synth.removeDelay();
+    } else if(key == '6') {
+      synth.removeDistortion();
     }
   }
 }

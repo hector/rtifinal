@@ -23,6 +23,10 @@ public class Polygon3D extends Drawable {
     this.normal = normal;
     this.shapeMode = shapeMode;
   }
+  
+  public PVector[] getVertices() {
+    return vertices;
+  }
 
   public void setVertices(PVector[] vertices) {
     this.vertices = vertices;
@@ -30,6 +34,10 @@ public class Polygon3D extends Drawable {
 
   public void setShapeMode (int shapeMode) {
     this.shapeMode = shapeMode;
+  }
+  
+  public PVector getNormal() {
+    return normal;
   }
 
   public void setNormal (PVector normal) {

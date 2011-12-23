@@ -15,5 +15,9 @@ public class Square3D extends Polygon3D {
     setNormal(new PVector(normal_x, normal_y, normal_z));
     setShapeMode(PApplet.QUADS);
   }
+  
+  public float size() {
+    return vertices[1].dist(vertices[2]);
+  }
 
 }
