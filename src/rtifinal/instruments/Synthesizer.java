@@ -12,6 +12,7 @@ public class Synthesizer extends Instrument {
   MagicCube cube;
   int color;
 
+
   public Synthesizer() {
     delay = null;
     distortion = null;
@@ -58,5 +59,8 @@ public class Synthesizer extends Instrument {
 
   public void draw() {
     cube.draw();
+    
   }
+
+
 }
