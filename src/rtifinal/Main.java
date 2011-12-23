@@ -1,39 +1,39 @@
 package rtifinal;
 
+import oscP5.*;
+import netP5.NetAddress;
 import processing.core.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
+import rtifinal.OSC.OSCSendReceive;
 
 public class Main extends PApplet {
 
   public static PApplet applet;
   int pts = 0;
   public Synthesizer synth;
+  OSCSendReceive oscComm;
+  
 
   public void setup() {
     Main.applet = this;
     size(screen.width, screen.height, P3D);
     synth = new Synthesizer();
+    oscComm = new OSCSendReceive();
+    
+
   }
 
   public void draw() {
     background(RGB, 100, 120, 34);
     lights();
     synth.draw();
+    oscComm.oscSend();
+
   }
 
-  public void keyPressed() {
-    if (key == CODED) {
-      if (keyCode == UP) {
-        if (pts < 1000) {
-          pts = pts + 10;
-        }
-      } else if (keyCode == DOWN) {
-        if (pts > -1000) {
-          pts = pts - 10;
-        }
-      }
-    }
+  public void oscEvent(OscMessage theOscMessage) {
+    oscComm.oscEvent(theOscMessage);
   }
 
   // main method to launch this Processing sketch from computer
