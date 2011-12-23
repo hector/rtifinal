@@ -6,22 +6,40 @@ import rtifinal.graphics.*;
 
 public class Main extends PApplet {
 
-  public static PApplet applet;
-  int pts = 0;
-  public Synthesizer synth;
+  public static Main applet;
+  int time, startFrameMillis, pts;
+  Synthesizer synth;
 
+  // main method to launch this Processing sketch from computer
+  public static void main(String[] args) {
+    PApplet.main(new String[]{"rtifinal.Main"});
+  }
+
+  @Override
   public void setup() {
     Main.applet = this;
     size(screen.width, screen.height, P3D);
     synth = new Synthesizer();
+    time = 0;
   }
 
+  @Override
   public void draw() {
+    startFrameMillis = millis();
     background(RGB, 100, 120, 34);
     lights();
-    synth.draw();  
+    strokeWeight(3);
+    synth.draw();
+    time = millis();
   }
 
+  // Returns the number of milliseconds since the last draw()
+  // This value is fixed during the draw function (calculates time at start of frame)
+  public int spentTime() {
+    return startFrameMillis - time;
+  }
+
+  @Override
   public void keyPressed() {
     if (key == CODED) {
       if (keyCode == UP) {
@@ -34,10 +52,5 @@ public class Main extends PApplet {
         }
       }
     }
-  }
-
-  // main method to launch this Processing sketch from computer
-  public static void main(String[] args) {
-    PApplet.main(new String[]{"rtifinal.Main"});
   }
 }
