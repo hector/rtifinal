@@ -31,7 +31,7 @@ public class OSCSendReceive {
     myMessage2.add((int)yacc);
     myMessage3.add(3);
     
-    System.out.println("TestOSCsend " + (int)xacc);
+    //System.out.println("TestOSCsend " + (int)xacc);
     //System.out.println("TestOSCx " + (int)yacc);
 
     oscP5.send(myMessage1, myRemoteLocation);
@@ -47,7 +47,7 @@ public class OSCSendReceive {
         yacc = theOscMessage.get(0).floatValue();
         xacc = theOscMessage.get(1).floatValue();
         zacc = theOscMessage.get(2).floatValue();
-        System.out.println("TestOSCReceive " + xacc);
+        //System.out.println("TestOSCReceive " + xacc);
         //System.out.println("TestOSCx " + yacc);
 
       }

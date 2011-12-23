@@ -19,7 +19,6 @@ public class Main extends PApplet {
     PApplet.main(new String[]{"rtifinal.Main"});
   }
 
-  @Override
   public void setup() {
     Main.applet = this;
     size(screen.width, screen.height, P3D);
@@ -28,7 +27,6 @@ public class Main extends PApplet {
     time = 0;
   }
 
-  @Override
   public void draw() {
     startFrameMillis = millis();
     background(RGB, 100, 120, 34);
@@ -49,5 +47,4 @@ public class Main extends PApplet {
     return startFrameMillis - time;
   }
 
-  }
 }
