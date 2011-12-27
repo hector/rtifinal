@@ -46,8 +46,6 @@ public abstract class Drawable extends Processing {
 
   public void draw() {
     p5.pushMatrix();
-    p5.fill(color);
-    p5.stroke(color);
     translateMouse();
     rotate();
     selfDraw();
@@ -56,6 +54,8 @@ public abstract class Drawable extends Processing {
 
   // Place here the specific code for subclasses drawing
   protected void selfDraw() {
+    p5.fill(color);
+    p5.stroke(color);    
   }
 
   protected void translate() {
