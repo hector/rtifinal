@@ -17,7 +17,7 @@ public class OSCSendReceive {
   NetAddress myRemoteLocation;
 
   public OSCSendReceive() {
-    myRemoteLocation = new NetAddress("193.145.42.220", 12000);
+    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
     oscP5 = new OscP5(this, 9000);
   }
 
@@ -27,8 +27,8 @@ public class OSCSendReceive {
     OscMessage myMessage2 = new OscMessage("/test2");
     OscMessage myMessage3 = new OscMessage("/test3");
 
-    myMessage1.add((int) xacc);
-    myMessage2.add((int) yacc);
+    myMessage1.add(Main.applet.mouseX);
+    myMessage2.add(Main.applet.mouseY);
     myMessage3.add(3);
 
     //System.out.println("TestOSCsend " + (int)xacc);
@@ -46,10 +46,9 @@ public class OSCSendReceive {
         xacc = theOscMessage.get(0).floatValue();
         yacc = theOscMessage.get(1).floatValue();
         zacc = theOscMessage.get(2).floatValue();
-        System.out.println("TestOSCReceiveX " + xacc);
-        System.out.println("TestOSCReceiveY " + yacc);
-        System.out.println("TestOSCReceiveZ " + zacc);
-        
+//        System.out.println("TestOSCReceiveX " + xacc);
+//        System.out.println("TestOSCReceiveY " + yacc);
+//        System.out.println("TestOSCReceiveZ " + zacc);  
       }
     }
 

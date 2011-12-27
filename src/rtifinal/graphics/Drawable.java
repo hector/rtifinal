@@ -64,7 +64,7 @@ public abstract class Drawable extends Processing {
 
   protected void rotate() {
     if (bpm != 0) {
-      angle += p5.spentTime() * (bpm * PI / 30) / 1000;
+      angle += p5.spentTime() * (bpm * PI / 10) / 1000;
     }
     p5.rotateX(angle);
   }

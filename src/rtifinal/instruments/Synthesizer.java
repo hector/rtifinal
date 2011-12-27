@@ -16,7 +16,7 @@ public class Synthesizer extends Instrument {
     delay = null;
     distortion = null;
     reverb = null;
-    color = p5.color(200,100,30);
+    color = p5.color(230,100,30);
     createCube();
   }
 
