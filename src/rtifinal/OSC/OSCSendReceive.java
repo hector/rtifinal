@@ -1,23 +1,24 @@
 package rtifinal.OSC;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
 import oscP5.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import netP5.NetAddress;
 import rtifinal.Main;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class OSCSendReceive {
 
-  OscP5 oscP5;
-  public static float xpos, ypos,toggle1,toggle2,toggle3,xacc,yacc,zacc;
+  OscP5 oscP5 = new OscP5(this, 9000);
+  public static float xpos, ypos, toggle1, toggle2, toggle3, xacc, yacc, zacc;
   OscMessage theOscMessage;
-  NetAddress myRemoteLocation;
+  NetAddress myRemoteLocation = new NetAddress("127.0.0.1", 12000);
+  public static HashMap hashMap = new HashMap();
+  int hashIt = 1;
 
   public OSCSendReceive() {
-    myRemoteLocation = new NetAddress("127.0.0.1", 12000);
-    oscP5 = new OscP5(this, 9000);
   }
 
   public void oscSend() {
@@ -41,7 +42,8 @@ public class OSCSendReceive {
   }
 
   public void oscEvent(OscMessage theOscMessage) {
-    
+
+
     //Take Accelerometer values
     if (theOscMessage.checkAddrPattern("/accxyz") == true) {
       if (theOscMessage.checkTypetag("fff")) {
@@ -53,7 +55,7 @@ public class OSCSendReceive {
 
       }
     }
-    
+
     // Take XY Pad values
     if (theOscMessage.checkAddrPattern("/4/xy") == true) {
       if (theOscMessage.checkTypetag("ff")) {
@@ -62,19 +64,27 @@ public class OSCSendReceive {
         //System.out.println("xpos " +xpos);
       }
     }
-    
+
     // Take tab4 toggle values
     if (theOscMessage.checkAddrPattern("/4/toggle1") == true) {
-        toggle1 = theOscMessage.get(0).floatValue();
-        //System.out.println("toggle1 " +toggle1); 
+      toggle1 = theOscMessage.get(0).floatValue();
+
+      if (hashMap.containsValue(theOscMessage.netAddress().toString())) {
+        System.out.println("HashMap contains this address");
+      } else {
+        System.out.println("HashMap does not contain this address, stored!");
+        hashMap.put(hashIt, theOscMessage.netAddress().toString()); // adding value into HashMap
+        hashIt++;
+      }
+      
     }
     if (theOscMessage.checkAddrPattern("/4/toggle2") == true) {
-        toggle2 = theOscMessage.get(0).floatValue();
-        //System.out.println("toggle1 " +toggle1); 
+      toggle2 = theOscMessage.get(0).floatValue();
+      //System.out.println("toggle1 " +toggle1); 
     }
     if (theOscMessage.checkAddrPattern("/4/toggle3") == true) {
-        toggle3 = theOscMessage.get(0).floatValue();
-        //System.out.println("toggle1 " +toggle1); 
+      toggle3 = theOscMessage.get(0).floatValue();
+      //System.out.println("toggle1 " +toggle1); 
     }
 
     /**

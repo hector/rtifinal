@@ -8,16 +8,14 @@ public abstract class Drawable extends Processing {
 
   int color;
   PVector position; // center of the drawable
-  float angle, bpm,rotY;
+  float angle, bpm, rotY;
   public static float xposD, yposD;
   float a = 0;
-  OSCSendReceive oscControl;
+  static OSCSendReceive oscControl = new OSCSendReceive();
 
   public Drawable() {
     color = 255;
     position = new PVector(0, 0, 0);
-    oscControl = new OSCSendReceive();
-
     angle = bpm = 0;
   }
 
@@ -71,14 +69,14 @@ public abstract class Drawable extends Processing {
     if (bpm != 0) {
       angle += p5.spentTime() * (bpm * PI / 5) / 1000;
     }
-    if(oscControl.toggle2 == 1) {
+    if (oscControl.toggle2 == 1) {
       p5.rotateX(angle);
     }
-    
-    if(oscControl.toggle3 == 1) {
+
+    if (oscControl.toggle3 == 1) {
       rotY = oscControl.yacc;
       p5.rotateY(rotY);
-    }else{
+    } else {
       p5.rotateY(rotY);
     }
 
@@ -99,6 +97,7 @@ public abstract class Drawable extends Processing {
     xposD = oscControl.xpos * p5.width;
     yposD = (oscControl.ypos - 1) * -p5.height;
     p5.translate(xposD, yposD, 0);
+
   }
 
   protected void translateCenter() {
