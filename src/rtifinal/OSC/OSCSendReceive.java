@@ -5,11 +5,11 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import netP5.NetAddress;
-import rtifinal.Main;
 import java.util.HashMap;
 import java.util.Iterator;
+import rtifinal.graphics.Processing;
 
-public class OSCSendReceive {
+public class OSCSendReceive extends Processing {
 
   OscP5 oscP5 = new OscP5(this, 9000);
   public static float xpos, ypos, toggle1, toggle2, toggle3, xacc, yacc, zacc;
@@ -27,11 +27,9 @@ public class OSCSendReceive {
     OscMessage myMessage2 = new OscMessage("/test2");
     OscMessage myMessage3 = new OscMessage("/test3");
 
-    myMessage1.add(Main.applet.mouseX);
-    myMessage2.add(Main.applet.mouseY);
+    myMessage1.add(p5.mouseX);
+    myMessage2.add(p5.mouseY);
     myMessage3.add(3);
-
-
 
     //System.out.println("TestOSCsend " + (int)xacc);
     //System.out.println("TestOSCx " + (int)yacc);

@@ -11,9 +11,9 @@ import rtifinal.graphics.*;
 import rtifinal.OSC.OSCSendReceive;
 import java.util.Iterator;
 
-public class Main extends PApplet {
+public class MainApplet extends PApplet {
 
-  public static Main applet;
+  public static MainApplet applet;
   int time, startFrameMillis, pts;
   int Y_AXIS = 1;
   int X_AXIS = 2;
@@ -26,21 +26,22 @@ public class Main extends PApplet {
 
   // main method to launch this Processing sketch from computer
   public static void main(String[] args) {
-    PApplet.main(new String[]{"rtifinal.Main"});
-
+    PApplet.main(new String[]{"rtifinal.MainApplet"});
   }
 
+  @Override
   public void setup() {
-    Main.applet = this;
+    MainApplet.applet = this;
     size(screen.width/2, screen.height/2, P3D);
     synth1 = new Synthesizer();
     synth2 = new Synthesizer();
     synth3 = new Synthesizer();
     synth4 = new Synthesizer();
-    time = 0;
     grad = new Gradient();
+    time = 0;
   }
 
+  @Override
   public void draw() {
     background(0);
     startFrameMillis = millis();
@@ -73,10 +74,8 @@ public class Main extends PApplet {
     if (oscComm.toggle1 == 1 && oscComm.hashMap.containsKey(4)) {
       synth4.draw();
     }
-    oscComm.oscSend();
+    //oscComm.oscSend();
     time = millis();
-
-
   }
 
   public void oscEvent(OscMessage theOscMessage) {
@@ -91,6 +90,7 @@ public class Main extends PApplet {
     return startFrameMillis - time;
   }
 
+  @Override
   public void keyPressed() {
 //    if (key == CODED) {
 //      if (keyCode == UP) {

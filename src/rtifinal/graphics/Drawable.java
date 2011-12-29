@@ -1,7 +1,6 @@
 package rtifinal.graphics;
 
 import processing.core.*;
-import rtifinal.Main;
 import rtifinal.OSC.OSCSendReceive;
 
 public abstract class Drawable extends Processing {
