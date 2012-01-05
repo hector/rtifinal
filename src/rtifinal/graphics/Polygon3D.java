@@ -31,6 +31,10 @@ public class Polygon3D extends Drawable {
   public void setVertices(PVector[] vertices) {
     this.vertices = vertices;
   }
+  
+  public void setVertex(int index, PVector vertix) {
+    this.vertices[index] = vertix;
+  }
 
   public void setShapeMode (int shapeMode) {
     this.shapeMode = shapeMode;
@@ -46,6 +50,7 @@ public class Polygon3D extends Drawable {
 
   @Override
   public void selfDraw() {
+    if(!visible) return;
     super.selfDraw();
     p5.beginShape(shapeMode);
     if(normal != null) p5.normal(normal.x, normal.y, normal.z);

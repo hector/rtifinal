@@ -9,6 +9,7 @@ public abstract class Polyedre extends Drawable {
 
   @Override
   public void selfDraw() {
+    if(!visible) return;
     super.selfDraw();
     for(Polygon3D polygon : polygons) {
       polygon.selfDraw();

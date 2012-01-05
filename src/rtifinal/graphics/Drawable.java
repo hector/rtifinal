@@ -1,21 +1,21 @@
 package rtifinal.graphics;
 
 import processing.core.*;
-import rtifinal.OSC.OSCSendReceive;
 
 public abstract class Drawable extends Processing {
 
   int color;
   PVector position; // center of the drawable
-  float angle, bpm, rotY;
-  public static float xposD, yposD;
-  float a = 0;
-  static OSCSendReceive oscControl = new OSCSendReceive();
+  float angle, bpm;
+  boolean sequencer, visible;
 
   public Drawable() {
+    super();
     color = 255;
     position = new PVector(0, 0, 0);
     angle = bpm = 0;
+    sequencer = false;
+    visible = true;
   }
 
   public int getColor() {
@@ -34,21 +34,10 @@ public abstract class Drawable extends Processing {
     this.position = position;
   }
 
-  protected static float cos(float angle) {
-    return PApplet.cos(angle);
-  }
-
-  protected static float sin(float angle) {
-    return PApplet.sin(angle);
-  }
-
-  protected static float radians(float degrees) {
-    return PApplet.radians(degrees);
-  }
-
   public void draw() {
+    if(!visible) return;
     p5.pushMatrix();
-    translateMouse();
+    translate();
     rotate();
     selfDraw();
     p5.popMatrix();
@@ -56,6 +45,7 @@ public abstract class Drawable extends Processing {
 
   // Place here the specific code for subclasses drawing
   protected void selfDraw() {
+    if(!visible) return;
     p5.fill(color);
     p5.stroke(color);
   }
@@ -65,24 +55,22 @@ public abstract class Drawable extends Processing {
   }
 
   protected void rotate() {
-    if (bpm != 0) {
-      angle += p5.spentTime() * (bpm * PI / 5) / 1000;
+    if (bpm != 0 && sequencer) {
+      angle += (p5.spentTime() * bpm * PI ) / 120000 ;
     }
-    if (oscControl.toggle2 == 1) {
-      p5.rotateX(angle);
-    }
-
-    if (oscControl.toggle3 == 1) {
-      rotY = oscControl.yacc;
-      p5.rotateY(rotY);
-    } else {
-      p5.rotateY(rotY);
-    }
-
+    p5.rotateX(angle);
   }
 
-  public void setBPM(int bpm) {
+  public void setBPM(float bpm) {
     this.bpm = bpm;
+  }
+  
+  public void sequencer(boolean on) {
+    this.sequencer = on;
+  }
+  
+  public void visible(boolean visible) {
+    this.visible = visible;
   }
 
   // FUNCTIONS FOR TESTING
@@ -92,11 +80,7 @@ public abstract class Drawable extends Processing {
   }
 
   protected void translateMouse() {
-
-    xposD = oscControl.xpos * p5.width;
-    yposD = (oscControl.ypos - 1) * -p5.height;
-    p5.translate(xposD, yposD, 0);
-
+    p5.translate(p5.mouseX, p5.mouseY, 0);
   }
 
   protected void translateCenter() {

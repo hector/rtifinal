@@ -13,4 +13,17 @@ public abstract class Processing {
   public Processing() {
     p5 = MainApplet.applet;
   }
+  
+  protected static float cos(float angle) {
+    return PApplet.cos(angle);
+  }
+
+  protected static float sin(float angle) {
+    return PApplet.sin(angle);
+  }
+
+  protected static float radians(float degrees) {
+    return PApplet.radians(degrees);
+  }  
+  
 }

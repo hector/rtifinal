@@ -1,66 +1,86 @@
 package rtifinal.instruments;
 
-import rtifinal.effects.*;
+import java.lang.reflect.*;
+import processing.core.PVector;
+import rtifinal.OSC.*;
 import rtifinal.graphics.MagicCube;
 
 public class Synthesizer extends Instrument {
-
-  Delay delay;
-  Distortion distortion;
-  Reverb reverb;
   
   MagicCube cube;
   int color;
+  boolean track;
 
-
-  public Synthesizer() {
-    delay = null;
-    distortion = null;
-    reverb = null;
+  public Synthesizer() throws Exception {
+    super();
     color = p5.color(230,100,30);
+    track = false;
+    mapLayout();
     createCube();
+  }
+  
+  private void mapLayout() throws Exception {
+    layout.getControl("/1/toggle1").map(this, "sequencer");
+    layout.getControl("/3/toggle5").map(this, "effect", 0);
+    layout.getControl("/3/toggle4").map(this, "effect", 1);
+    layout.getControl("/3/toggle3").map(this, "effect", 2);
+    layout.getControl("/3/toggle2").map(this, "effect", 3);
+    layout.getControl("/3/toggle1").map(this, "effect", 4);
+    layout.getControl("/4/toggle5").map(this, "effect", 5);
+    layout.getControl("/3/rotary1").map(this, "effectParam", 0);
+    layout.getControl("/3/rotary2").map(this, "effectParam", 1);
+    layout.getControl("/3/rotary3").map(this, "effectParam", 2);
+    layout.getControl("/3/rotary4").map(this, "effectParam", 3);
+    layout.getControl("/3/rotary5").map(this, "effectParam", 4);
+    layout.getControl("/3/rotary6").map(this, "effectParam", 5);
+    layout.getControl("/4/toggle4").map(this, "trackXY");
+    layout.getControl("/4/xy").map(this, "setPositionFromXY");
   }
 
   private void createCube() {
     cube = new MagicCube(p5.height/4);
     cube.setColor(color);
-    cube.setBPM(30);
+    cube.setPosition(getPosition());
   }
   
-  public void addReverb(Reverb reverb) {
-    this.reverb = reverb;
-    cube.addPyramid(0);
+  // Enable/disable effect
+  public void effect(boolean enable, Integer effect) {
+    cube.pyramidVisible(enable, effect);
   }
   
-  public void removeReverb() {
-    this.reverb = null;
-    cube.removePyramid(0);
+  public void effectParam(float param, Integer effect) {
+    cube.pyramidHeight(param, effect);
   }
   
-  public void addDelay(Delay delay) {
-    this.delay = delay;
-    cube.addPyramid(1);
+  public void trackXY(boolean track) {
+    this.track = track;
   }
   
-  public void removeDelay() {
-    this.delay = null;
-    cube.removePyramid(1);
+  public void setPositionFromXY(float y, float x) {
+    if(track) setPosition(new PVector(p5.width*x, p5.height*(1-y)));
   }
   
-  public void addDistortion(Distortion distortion) {
-    this.distortion = distortion;
-    cube.addPyramid(2);
+  @Override
+  public void setPosition(PVector position) {
+    super.setPosition(position);
+    cube.setPosition(position);
   }
   
-  public void removeDistortion() {
-    this.distortion = null;
-    cube.removePyramid(2);
-  }  
+  @Override
+  public void setBPM(float bpm) {
+    super.setBPM(bpm);
+    cube.setBPM(bpm);
+  }
+  
+  @Override
+  public void sequencer(boolean on) {
+    super.sequencer(on);
+    cube.sequencer(on);
+  }
 
+  @Override
   public void draw() {
     cube.draw();
-    
   }
-
 
 }

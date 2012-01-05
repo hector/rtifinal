@@ -1,6 +1,7 @@
 package rtifinal.graphics;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PVector;
 
 public class Triangle3D extends Polygon3D {
   

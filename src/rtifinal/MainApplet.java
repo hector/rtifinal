@@ -1,28 +1,24 @@
 package rtifinal;
 
-import java.awt.Color;
 import oscP5.*;
-import netP5.NetAddress;
+import netP5.*;
 import processing.core.*;
-import rtifinal.*;
-import rtifinal.effects.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
-import rtifinal.OSC.OSCSendReceive;
-import java.util.Iterator;
+import java.util.*;
 
 public class MainApplet extends PApplet {
 
   public static MainApplet applet;
-  int time, startFrameMillis, pts;
-  int Y_AXIS = 1;
-  int X_AXIS = 2;
-  Synthesizer synth1, synth2, synth3, synth4;
-  OSCSendReceive oscComm = new OSCSendReceive();
+  static int listeningPort = 9000;
+  static int broadcastPort = 12000;
+  int time, startFrameMillis;
+  float tempo;
   Gradient grad;
-  int b1;
-  int b2;
-  float mx, my;
+  NetAddress pureData;
+  OscP5 oscP5 = null;
+  ArrayList<Instrument> instruments;
+  HashMap<String, Instrument> devices;
 
   // main method to launch this Processing sketch from computer
   public static void main(String[] args) {
@@ -32,87 +28,118 @@ public class MainApplet extends PApplet {
   @Override
   public void setup() {
     MainApplet.applet = this;
-    size(screen.width/2, screen.height/2, P3D);
-    synth1 = new Synthesizer();
-    synth2 = new Synthesizer();
-    synth3 = new Synthesizer();
-    synth4 = new Synthesizer();
+    if(oscP5 == null) oscP5 = new OscP5(this, listeningPort, OscP5.UDP);
+    pureData = new NetAddress("127.0.0.1", broadcastPort);
+    devices = new HashMap<String, Instrument>();
+    instruments = new ArrayList<Instrument>(10);
+    frameRate(25);
     grad = new Gradient();
+    size(screen.width, screen.height, P3D);
+    tempo = 120;
     time = 0;
+//    try {
+//      Instrument synth = new Synthesizer();
+//    } catch (Exception ex) {
+//      ex.printStackTrace();
+//    }
   }
 
   @Override
   public void draw() {
-    background(0);
     startFrameMillis = millis();
-    grad.setGradient(0, 0, width, height, Y_AXIS);
+    background(0);
+    grad.setGradient(0, 0, width, height, 2);
     lights();
     strokeWeight(3);
-    if (oscComm.toggle1 == 1 && oscComm.hashMap.containsKey(1)) {
-      synth1.draw();
-      fill(134,255,23);
-      noStroke();
-      pushMatrix();
-      int sl = height / 20;
-      translate(sl * 2, sl * 5, 0);
-      sphere(sl);
-      popMatrix();
+    for (Instrument instrument : instruments) {
+      instrument.draw();
     }
-    if (oscComm.toggle1 == 1 && oscComm.hashMap.containsKey(2)) {
-      synth2.draw();
-      fill(100,45,234);
-      noStroke();
-      pushMatrix();
-      int sl = height / 20;
-      translate(sl * 2, sl * 2, 0);
-      sphere(sl);
-      popMatrix();
-    }
-    if (oscComm.toggle1 == 1 && oscComm.hashMap.containsKey(3)) {
-      synth3.draw();
-    }
-    if (oscComm.toggle1 == 1 && oscComm.hashMap.containsKey(4)) {
-      synth4.draw();
-    }
-    //oscComm.oscSend();
     time = millis();
   }
 
-  public void oscEvent(OscMessage theOscMessage) {
-    oscComm.oscEvent(theOscMessage);
+  public void oscEvent(OscMessage msg) throws Exception {
+    try {
+      // Forward all messages to pure data
+      //oscP5.send(msg, pureData); 
+      String ip = msg.netAddress().address();
+      // Handle instrument creation/swaping
+      if (msg.checkAddrPattern("/1/push12") && msg.get(0).floatValue() == 1.0) {
+        createSynthesizer(ip);
+      } else if (msg.checkAddrPattern("/1/push11") && msg.get(0).floatValue() == 1.0) {
+        createDrumMachine(ip);
+      } else if (msg.checkAddrPattern("/1/push10") && msg.get(0).floatValue() == 1.0) {
+        changeInstrument(ip);
+      }
+      // Send message to the corresponding instrument
+      Instrument instrument = devices.get(ip);
+      if (instrument != null) {
+        instrument.oscEvent(msg);
+      }
+    } catch(Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
+  }
 
+  private void createSynthesizer(String ip) throws Exception {
+    Instrument synth = new Synthesizer();
+    float w = width * (float)Math.random();
+    float h = height * (float)Math.random();
+    synth.setPosition(new PVector(w, h, 0));
+    synth.setBPM(60);
+    devices.put(ip, synth);
+    instruments.add(synth);
+    sendLayout(synth, ip);
+  }
+
+  private void createDrumMachine(String ip) {
+    Instrument drums = new DrumMachine();
+    float w = width * (float)Math.random();
+    float h = height * (float)Math.random();
+    drums.setPosition(new PVector(w, h, 0));
+    devices.put(ip, drums);
+    instruments.add(drums);
+    sendLayout(drums, ip);
+  }
+
+  private void changeInstrument(String ip) {
+    Instrument instrument = devices.get(ip);
+    int size = instruments.size();
+    int pos = (instrument==null) ? size : instruments.indexOf(instrument);
+    int index = pos + 1;
+    while (index != pos) {
+      if (index >= size) index = 0;
+      else {
+        instrument = instruments.get(index);
+        if (!devices.containsValue(instrument)) {
+          devices.put(ip, instrument);
+          sendLayout(instrument, ip);
+          index = pos;
+        } else index += 1;
+      }
+    }
+  }
+
+  private void sendLayout(Instrument instrument, String ip) {
+    ArrayList<OscMessage> msgs = instrument.oscLayoutMessages();
+    oscSend(msgs, ip);
+  }
+
+  public void oscSend(OscMessage msg, NetAddress dest) {
+    oscP5.send(msg, dest);
+  }
+
+  public void oscSend(ArrayList<OscMessage> msgs, String ip) {
+    NetAddress dest = new NetAddress(ip, broadcastPort);
+    OscBundle bundle = new OscBundle();
+    for (OscMessage msg : msgs) bundle.add(msg);
+    oscP5.send(bundle, dest);
   }
 
   // Returns the number of milliseconds since the last draw()
   // This value is fixed during the draw function (calculates time at start of frame)
   public int spentTime() {
-
     return startFrameMillis - time;
   }
 
-  @Override
-  public void keyPressed() {
-//    if (key == CODED) {
-//      if (keyCode == UP) {
-//        
-//      } else if (keyCode == DOWN) {
-//        if (pts > -1000) {
-//          pts = pts - 10;
-//        }
-//      }
-//    }
-    if (key == '1') {
-      synth1.addReverb(new Reverb());
-    } else if (key == '2') {
-      synth1.addDelay(new Delay());
-    } else if (key == '3') {
-      synth1.addDistortion(new Distortion());
-    } else if (key == '4') {
-      synth1.removeReverb();
-    } else if (key == '5') {
-      synth1.removeDelay();
-    } else if (key == '6') {
-      synth1.removeDistortion();
-    }
-  }
 }

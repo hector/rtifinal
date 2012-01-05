@@ -1,17 +1,19 @@
 package rtifinal.graphics;
 
-import processing.core.*;
+import processing.core.PVector;
 
 public class Pyramid extends Polyedre {
 
   PVector topPoint;
   float height;
+  float heightPercentage;
   
   public Pyramid (Square3D base) {
     this.polygons = new Polygon3D[5];
     this.polygons[0] = new Square3D(base.getVertices(), base.getNormal());
     this.height = base.size()/2;
     this.topPoint = new PVector();
+    this.heightPercentage = 0;
     calculateTriangles();
   }
   
@@ -33,12 +35,26 @@ public class Pyramid extends Polyedre {
     topPoint.div(4);
     PVector normal = new PVector();
     normal.set(base().getNormal());
-    normal.mult(height);
+    normal.mult(height*heightPercentage);
     topPoint.add(normal);
   }
   
   public Square3D base() {
     return (Square3D) polygons[0];
+  }
+  
+  public Triangle3D[] triangles() {
+    Triangle3D[] triangles = new Triangle3D[4];
+    for(int i=0; i < 4; i++) triangles[i] = (Triangle3D)polygons[i+1]; 
+    return triangles;
+  }
+  
+  public void setHeightPercentage(float percentage) {
+    this.heightPercentage = percentage;
+    calculateTopPoint();
+    for(Triangle3D triangle : triangles()) {
+      triangle.setVertex(2, topPoint);
+    }
   }
   
 }
