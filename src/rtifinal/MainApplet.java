@@ -22,7 +22,7 @@ public class MainApplet extends PApplet {
   ArrayList<Synthesizer> synthesizers;
   ArrayList<DrumMachine> drumMachines;
   HashMap<String, Instrument> devices;
-  HashMap<String, Integer> clients;
+  ArrayList<String> clients;
   int[] colors;
 
   // main method to launch this Processing sketch from computer
@@ -36,7 +36,7 @@ public class MainApplet extends PApplet {
     if(oscP5 == null) oscP5 = new OscP5(this, listeningPort, OscP5.UDP);
     pureData = new NetAddress("127.0.0.1", broadcastPort);
     devices = new HashMap<String, Instrument>();
-    clients = new HashMap<String, Integer>();
+    clients = new ArrayList<String>(4);
     instruments = new ArrayList<Instrument>(8);
     synthesizers = new ArrayList<Synthesizer>(4);
     drumMachines = new ArrayList<DrumMachine>(4);
@@ -71,9 +71,9 @@ public class MainApplet extends PApplet {
     // Draw client coloured circles
     Instrument inst;
     strokeWeight(0);
-    for (String ip : clients.keySet()) {
-      inst = devices.get(ip);
-      fill(colors[clients.get(ip)]);
+    for (int i=0; i < clients.size(); i++) {
+      inst = devices.get(clients.get(i));
+      fill(colors[i]);
       ellipse(inst.getPosition().x, inst.getPosition().y, inst.getSize()*2, inst.getSize()*2);
     }
     time = millis();
@@ -112,6 +112,7 @@ public class MainApplet extends PApplet {
     synth.setPosition(new PVector(w, h, 0));
     synth.setBPM(tempo);
     devices.put(ip, synth);
+    addClient(ip);
     instruments.add(synth);
     synthesizers.add(synth);
     sendLayout(synth, ip);
@@ -125,6 +126,7 @@ public class MainApplet extends PApplet {
     drums.setPosition(new PVector(w, h, 0));
     drums.setBPM(tempo);
     devices.put(ip, drums);
+    addClient(ip);
     instruments.add(drums);
     drumMachines.add(drums);
     sendLayout(drums, ip);
@@ -141,6 +143,7 @@ public class MainApplet extends PApplet {
         instrument = instruments.get(index);
         if (!devices.containsValue(instrument)) {
           devices.put(ip, instrument);
+          addClient(ip);
           sendLayout(instrument, ip);
           index = pos;
         } else index += 1;
@@ -148,10 +151,14 @@ public class MainApplet extends PApplet {
     }
   }
   
+  private void addClient(String ip) {
+    if(!clients.contains(ip)) clients.add(ip);
+  }
+  
   private String instrPattern(String ip) {
     Instrument instr = devices.get(ip);
-    int num = synthesizers.indexOf(instr) + 1;
-    if (num == 0) num = drumMachines.indexOf(instr) + 4;
+    int num = drumMachines.indexOf(instr) + 1;
+    if (num == 0) num = synthesizers.indexOf(instr) + 4;
     return "/"+num;
   }
 
