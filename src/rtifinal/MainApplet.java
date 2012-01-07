@@ -18,7 +18,10 @@ public class MainApplet extends PApplet {
   NetAddress pureData;
   OscP5 oscP5 = null;
   ArrayList<Instrument> instruments;
+  ArrayList<Synthesizer> synthesizers;
+  ArrayList<DrumMachine> drumMachines;
   HashMap<String, Instrument> devices;
+  HashMap<String, Integer> clients;
 
   // main method to launch this Processing sketch from computer
   public static void main(String[] args) {
@@ -31,7 +34,10 @@ public class MainApplet extends PApplet {
     if(oscP5 == null) oscP5 = new OscP5(this, listeningPort, OscP5.UDP);
     pureData = new NetAddress("127.0.0.1", broadcastPort);
     devices = new HashMap<String, Instrument>();
-    instruments = new ArrayList<Instrument>(10);
+    clients = new HashMap<String, Integer>();
+    instruments = new ArrayList<Instrument>(8);
+    synthesizers = new ArrayList<Synthesizer>(4);
+    drumMachines = new ArrayList<DrumMachine>(4);
     frameRate(25);
     grad = new Gradient();
     size(screen.width, screen.height, P3D);
@@ -59,8 +65,6 @@ public class MainApplet extends PApplet {
 
   public void oscEvent(OscMessage msg) throws Exception {
     try {
-      // Forward all messages to pure data
-      //oscP5.send(msg, pureData); 
       String ip = msg.netAddress().address();
       // Handle instrument creation/swaping
       if (msg.checkAddrPattern("/1/push12") && msg.get(0).floatValue() == 1.0) {
@@ -74,6 +78,9 @@ public class MainApplet extends PApplet {
       Instrument instrument = devices.get(ip);
       if (instrument != null) {
         instrument.oscEvent(msg);
+        // Forward all messages to pure data
+        msg.setAddrPattern(clientPattern(ip) + msg.addrPattern());
+        oscP5.send(msg, pureData); 
       }
     } catch(Exception e) {
       e.printStackTrace();
@@ -82,23 +89,30 @@ public class MainApplet extends PApplet {
   }
 
   private void createSynthesizer(String ip) throws Exception {
-    Instrument synth = new Synthesizer();
+    if(synthesizers.size() >= 4) return;
+    Synthesizer synth = new Synthesizer();
     float w = width * (float)Math.random();
     float h = height * (float)Math.random();
     synth.setPosition(new PVector(w, h, 0));
-    synth.setBPM(60);
+    synth.setBPM(tempo);
     devices.put(ip, synth);
+    addClient(ip);
     instruments.add(synth);
+    synthesizers.add(synth);
     sendLayout(synth, ip);
   }
 
-  private void createDrumMachine(String ip) {
-    Instrument drums = new DrumMachine();
+  private void createDrumMachine(String ip) throws Exception {
+    if(drumMachines.size() >= 4) return;
+    DrumMachine drums = new DrumMachine();
     float w = width * (float)Math.random();
     float h = height * (float)Math.random();
     drums.setPosition(new PVector(w, h, 0));
+    drums.setBPM(tempo);
     devices.put(ip, drums);
+    addClient(ip);
     instruments.add(drums);
+    drumMachines.add(drums);
     sendLayout(drums, ip);
   }
 
@@ -113,11 +127,20 @@ public class MainApplet extends PApplet {
         instrument = instruments.get(index);
         if (!devices.containsValue(instrument)) {
           devices.put(ip, instrument);
+          addClient(ip);
           sendLayout(instrument, ip);
           index = pos;
         } else index += 1;
       }
     }
+  }
+  
+  private void addClient(String ip) {
+    if(!clients.containsKey(ip)) clients.put(ip, clients.size()+1);
+  }
+  
+  private String clientPattern(String ip) {
+    return "/"+clients.get(ip);
   }
 
   private void sendLayout(Instrument instrument, String ip) {
