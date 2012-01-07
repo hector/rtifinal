@@ -6,6 +6,7 @@ import processing.core.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class MainApplet extends PApplet {
 
@@ -22,6 +23,7 @@ public class MainApplet extends PApplet {
   ArrayList<DrumMachine> drumMachines;
   HashMap<String, Instrument> devices;
   HashMap<String, Integer> clients;
+  int[] colors;
 
   // main method to launch this Processing sketch from computer
   public static void main(String[] args) {
@@ -42,12 +44,17 @@ public class MainApplet extends PApplet {
     grad = new Gradient();
     size(screen.width, screen.height, P3D);
     tempo = 120;
+    initColors();
     time = 0;
-//    try {
-//      Instrument synth = new Synthesizer();
-//    } catch (Exception ex) {
-//      ex.printStackTrace();
-//    }
+  }
+  
+  private void initColors() {
+    colors = new int[4];
+    int trans = 75;
+    colors[0] = color(255,0,0,trans);
+    colors[1] = color(0,255,0,trans);
+    colors[2] = color(0,0,255,trans);
+    colors[3] = color(255,255,0,trans);
   }
 
   @Override
@@ -56,9 +63,18 @@ public class MainApplet extends PApplet {
     background(0);
     grad.setGradient(0, 0, width, height, 2);
     lights();
+    // Draw instruments
     strokeWeight(3);
     for (Instrument instrument : instruments) {
       instrument.draw();
+    }
+    // Draw client coloured circles
+    Instrument inst;
+    strokeWeight(0);
+    for (String ip : clients.keySet()) {
+      inst = devices.get(ip);
+      fill(colors[clients.get(ip)]);
+      ellipse(inst.getPosition().x, inst.getPosition().y, inst.getSize()*2, inst.getSize()*2);
     }
     time = millis();
   }
@@ -79,7 +95,7 @@ public class MainApplet extends PApplet {
       if (instrument != null) {
         instrument.oscEvent(msg);
         // Forward all messages to pure data
-        msg.setAddrPattern(clientPattern(ip) + msg.addrPattern());
+        msg.setAddrPattern(instrPattern(ip) + msg.addrPattern());
         oscP5.send(msg, pureData); 
       }
     } catch(Exception e) {
@@ -96,7 +112,6 @@ public class MainApplet extends PApplet {
     synth.setPosition(new PVector(w, h, 0));
     synth.setBPM(tempo);
     devices.put(ip, synth);
-    addClient(ip);
     instruments.add(synth);
     synthesizers.add(synth);
     sendLayout(synth, ip);
@@ -110,7 +125,6 @@ public class MainApplet extends PApplet {
     drums.setPosition(new PVector(w, h, 0));
     drums.setBPM(tempo);
     devices.put(ip, drums);
-    addClient(ip);
     instruments.add(drums);
     drumMachines.add(drums);
     sendLayout(drums, ip);
@@ -127,7 +141,6 @@ public class MainApplet extends PApplet {
         instrument = instruments.get(index);
         if (!devices.containsValue(instrument)) {
           devices.put(ip, instrument);
-          addClient(ip);
           sendLayout(instrument, ip);
           index = pos;
         } else index += 1;
@@ -135,12 +148,11 @@ public class MainApplet extends PApplet {
     }
   }
   
-  private void addClient(String ip) {
-    if(!clients.containsKey(ip)) clients.put(ip, clients.size()+1);
-  }
-  
-  private String clientPattern(String ip) {
-    return "/"+clients.get(ip);
+  private String instrPattern(String ip) {
+    Instrument instr = devices.get(ip);
+    int num = synthesizers.indexOf(instr) + 1;
+    if (num == 0) num = drumMachines.indexOf(instr) + 4;
+    return "/"+num;
   }
 
   private void sendLayout(Instrument instrument, String ip) {

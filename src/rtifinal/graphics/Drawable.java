@@ -6,14 +6,16 @@ public abstract class Drawable extends Processing {
 
   int color;
   PVector position; // center of the drawable
-  float angle, bpm;
+  float angle, bpm, scale, tempScale;
   boolean sequencer, visible;
 
   public Drawable() {
     super();
     color = 255;
     position = new PVector(0, 0, 0);
-    angle = bpm = 0;
+    angle = 0;
+    bpm = 0;
+    scale = 1;
     sequencer = false;
     visible = true;
   }
@@ -39,6 +41,7 @@ public abstract class Drawable extends Processing {
     p5.pushMatrix();
     translate();
     rotate();
+    scale();
     selfDraw();
     p5.popMatrix();
   }
@@ -59,6 +62,19 @@ public abstract class Drawable extends Processing {
       angle += (p5.spentTime() * bpm * PI ) / 120000 ;
     }
     p5.rotateX(angle);
+  }
+  
+  protected void scale() {
+    float s = scale;
+    if(tempScale > scale) {
+      s = tempScale;
+      tempScale = (float) (tempScale*0.9);
+    }
+    p5.scale(s);
+  }
+  
+  public void bump() {
+    tempScale = (float) (scale * 1.25);
   }
 
   public void setBPM(float bpm) {

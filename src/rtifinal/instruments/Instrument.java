@@ -11,7 +11,7 @@ public abstract class Instrument extends Drawable {
   
   Beatmachine layout;
   MagicCube cube;
-  int color;
+  int color, size;
   boolean track;  
   
   public Instrument() throws Exception {
@@ -20,6 +20,7 @@ public abstract class Instrument extends Drawable {
     color = p5.color(230,100,30);
     track = false;
     mapLayout();
+    size = p5.height/4;
     createCube();    
   }
   
@@ -33,6 +34,15 @@ public abstract class Instrument extends Drawable {
   
   private void mapLayout() throws Exception {
     layout.getControl("/1/toggle1").map(this, "sequencer");
+    layout.getControl("/1/push1").map(this, "pushBump");
+    layout.getControl("/1/push2").map(this, "pushBump");
+    layout.getControl("/1/push3").map(this, "pushBump");
+    layout.getControl("/1/push4").map(this, "pushBump");
+    layout.getControl("/1/push5").map(this, "pushBump");
+    layout.getControl("/1/push6").map(this, "pushBump");
+    layout.getControl("/1/push7").map(this, "pushBump");
+    layout.getControl("/1/push8").map(this, "pushBump");
+    layout.getControl("/1/push9").map(this, "pushBump");
     layout.getControl("/3/toggle5").map(this, "effect", 0);
     layout.getControl("/3/toggle4").map(this, "effect", 1);
     layout.getControl("/3/toggle3").map(this, "effect", 2);
@@ -50,7 +60,7 @@ public abstract class Instrument extends Drawable {
   }
 
   private void createCube() {
-    cube = new MagicCube(p5.height/4);
+    cube = new MagicCube(size);
     cube.setColor(color);
     cube.setPosition(getPosition());
   }
@@ -60,6 +70,10 @@ public abstract class Instrument extends Drawable {
     this.color = color;
     cube.setColor(color);
   }  
+  
+  public void pushBump(float value) {
+    if(value == 1) cube.bump();
+  }
   
   // Enable/disable effect
   public void effect(boolean enable, Integer effect) {
@@ -99,6 +113,10 @@ public abstract class Instrument extends Drawable {
   @Override
   public void draw() {
     cube.draw();
-  }  
+  } 
+  
+  public int getSize() {
+    return size;
+  }
 
 }

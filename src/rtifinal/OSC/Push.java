@@ -2,7 +2,7 @@ package rtifinal.OSC;
 
 import oscP5.OscMessage;
 
-public class Push extends Control {
+public class Push extends ControlX {
   
   public Push(String prefix, int id) {
     super(prefix, id);
@@ -12,9 +12,6 @@ public class Push extends Control {
   protected String oscStr() {
     return "/push";
   }    
-  
-  @Override
-  public void oscEvent(OscMessage msg) throws Exception {}
   
   @Override
   public OscMessage oscMessage() {
