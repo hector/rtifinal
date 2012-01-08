@@ -59,24 +59,26 @@ public class MainApplet extends PApplet {
 
   @Override
   public void draw() {
-    startFrameMillis = millis();
-    background(0);
-    //grad.setGradient(instruments,0, 0, 2);
-    lights();
-    // Draw instruments
-    strokeWeight(3);
-    for (Instrument instrument : instruments) {
-      instrument.draw();
-    }
-    // Draw client coloured circles
-    Instrument inst;
-    strokeWeight(0);
-    for (int i=0; i < clients.size(); i++) {
-      inst = devices.get(clients.get(i));
-      fill(colors[i]);
-      ellipse(inst.getPosition().x, inst.getPosition().y, inst.getSize()*2, inst.getSize()*2);
-    }
-    time = millis();
+    try {
+      startFrameMillis = millis();
+      background(0);
+      //grad.setGradient(instruments,0, 0, 2);
+      lights();
+      // Draw instruments
+      strokeWeight(3);
+      for (Instrument instrument : instruments) {
+        instrument.draw();
+      }
+      // Draw client coloured circles
+      Instrument inst;
+      strokeWeight(0);
+      for (int i=0; i < clients.size(); i++) {
+        inst = devices.get(clients.get(i));
+        fill(colors[i]);
+        ellipse(inst.getPosition().x, inst.getPosition().y, inst.getSize()*2, inst.getSize()*2);
+      }
+      time = millis();
+    } catch(ConcurrentModificationException cme) {}
   }
 
   public void oscEvent(OscMessage msg) throws Exception {
@@ -98,6 +100,7 @@ public class MainApplet extends PApplet {
         msg.setAddrPattern(instrPattern(ip) + msg.addrPattern());
         oscP5.send(msg, pureData); 
       }
+    } catch(ConcurrentModificationException cme) {
     } catch(Exception e) {
       e.printStackTrace();
       throw e;
@@ -173,9 +176,15 @@ public class MainApplet extends PApplet {
 
   public void oscSend(ArrayList<OscMessage> msgs, String ip) {
     NetAddress dest = new NetAddress(ip, broadcastPort);
-    OscBundle bundle = new OscBundle();
-    for (OscMessage msg : msgs) bundle.add(msg);
-    oscP5.send(bundle, dest);
+//    OscBundle bundle = new OscBundle();
+    try {
+      for (OscMessage msg : msgs) {
+        oscSend(msg, dest);
+        Thread.sleep(1);
+      }
+    } catch (Exception e) {}
+      //bundle.add(msg);
+//    oscP5.send(bundle, dest);
   }
 
   // Returns the number of milliseconds since the last draw()
