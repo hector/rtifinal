@@ -34,6 +34,7 @@ public abstract class Instrument extends Drawable {
   
   private void mapLayout() throws Exception {
     layout.getControl("/1/toggle1").map(this, "sequencer");
+    layout.getControl("/1/toggle2").map(this, "mute");
     layout.getControl("/1/push1").map(this, "pushBump");
     layout.getControl("/1/push2").map(this, "pushBump");
     layout.getControl("/1/push3").map(this, "pushBump");
@@ -73,6 +74,11 @@ public abstract class Instrument extends Drawable {
   
   public void pushBump(float value) {
     if(value == 1) cube.bump();
+  }
+
+  public void mute(boolean mute) {
+    if(mute) cube.setAlpha(150);
+    else cube.setAlpha(255);
   }
   
   // Enable/disable effect

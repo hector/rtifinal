@@ -6,12 +6,13 @@ public abstract class Drawable extends Processing {
 
   int color;
   PVector position; // center of the drawable
-  float angle, bpm, scale, tempScale;
+  float alpha, angle, bpm, scale, tempScale;
   boolean sequencer, visible;
 
   public Drawable() {
     super();
     color = 255;
+    alpha = 255;
     position = new PVector(0, 0, 0);
     angle = 0;
     bpm = 0;
@@ -26,6 +27,10 @@ public abstract class Drawable extends Processing {
 
   public void setColor(int color) {
     this.color = color;
+  }
+
+  public void setAlpha(float alpha) {
+    this.alpha = alpha;
   }
 
   public PVector getPosition() {
@@ -49,8 +54,8 @@ public abstract class Drawable extends Processing {
   // Place here the specific code for subclasses drawing
   protected void selfDraw() {
     if(!visible) return;
-    p5.fill(color);
-    p5.stroke(color);
+    p5.fill(color, alpha);
+    p5.stroke(color, alpha);
   }
 
   protected void translate() {

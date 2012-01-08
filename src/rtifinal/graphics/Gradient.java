@@ -1,7 +1,8 @@
 package rtifinal.graphics;
 
-import processing.core.*;
-import rtifinal.graphics.Drawable;
+import java.util.ArrayList;
+import processing.core.PVector;
+import rtifinal.instruments.Instrument;
 
 public class Gradient extends Processing {
 
@@ -13,16 +14,25 @@ public class Gradient extends Processing {
 
   public Gradient() {}
   
-  public void setGradient(int x, int y, float w, float h, int axis) {
+  public void setGradient(ArrayList<Instrument> instruments, int x, int y, int axis) {
+    int w = p5.width;
+    int h = p5.height;
 
-//    mx = oscComm.xpos * 255;
-    mx = 1 * 255;
-//    my = (oscComm.ypos - 1) * -255;
+    PVector mean;
+    if(instruments.isEmpty()) mean = new PVector(w/2, h/2);
+    else {
+      mean = new PVector(0,0);
+      for(Drawable instrument : instruments) mean.add(instrument.getPosition());
+      mean.div(instruments.size());
+    }
+    
+    mx = mean.x * 255;
+    my = (mean.y - 1) * -255;
     my = (1 - 1) * -255;
-//    c1 = p5.color(my, 0, mx);
-//    c2 = p5.color(mx, my, 0);
-    c1 = 10;
-    c2 = 100;
+    c1 = p5.color(my, 0, mx);
+    c2 = p5.color(mx, my, 0);
+//    c1 = 10;
+//    c2 = 100;
     // calculate differences between color components
     float deltaR = p5.red(c2) - p5.red(c1);
     float deltaG = p5.green(c2) - p5.green(c1);

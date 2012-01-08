@@ -23,4 +23,13 @@ public abstract class Polyedre extends Drawable {
       polygon.setColor(color);
     }    
   }
+
+  @Override
+  public void setAlpha(float alpha) {
+    super.setAlpha(alpha);
+    for(Polygon3D polygon : polygons) {
+      polygon.setAlpha(alpha);
+    }
+  }
+
 }

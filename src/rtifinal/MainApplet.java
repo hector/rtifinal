@@ -61,7 +61,7 @@ public class MainApplet extends PApplet {
   public void draw() {
     startFrameMillis = millis();
     background(0);
-    grad.setGradient(0, 0, width, height, 2);
+    //grad.setGradient(instruments,0, 0, 2);
     lights();
     // Draw instruments
     strokeWeight(3);

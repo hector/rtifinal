@@ -48,4 +48,12 @@ public class MagicCube extends Cube {
     }
   }
 
+  @Override
+  public void setAlpha(float alpha) {
+    super.setAlpha(alpha);
+    for(Pyramid pyramid : pyramids) {
+      pyramid.setAlpha(alpha);
+    }
+  }
+
 }
