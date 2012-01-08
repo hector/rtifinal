@@ -4,7 +4,7 @@ public class Synthesizer extends Instrument {
 
   public Synthesizer() throws Exception {
     super();
-    color = p5.color(200,200,100);
+    setColor(p5.color(140,216,245)); // Sky blue
   }
 
 }

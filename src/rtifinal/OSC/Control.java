@@ -24,6 +24,10 @@ public abstract class Control {
   
   protected abstract String oscStr();  
   
+  public void setValues(Object[] values) {
+    this.values = values;
+  }
+  
   public String getOscAddr() {
     return oscAddr;
   }

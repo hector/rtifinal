@@ -14,7 +14,7 @@ public class MainApplet extends PApplet {
   static int listeningPort = 9000;
   static int broadcastPort = 12000;
   int time, startFrameMillis;
-  float tempo;
+  float tempo, alpha;
   Gradient grad;
   NetAddress pureData;
   OscP5 oscP5 = null;
@@ -44,25 +44,25 @@ public class MainApplet extends PApplet {
     grad = new Gradient();
     size(screen.width, screen.height, P3D);
     tempo = 120;
-    initColors();
+    initColors(); 
+    alpha = 75;
     time = 0;
   }
   
   private void initColors() {
     colors = new int[4];
-    int trans = 75;
-    colors[0] = color(255,0,0,trans);
-    colors[1] = color(0,255,0,trans);
-    colors[2] = color(0,0,255,trans);
-    colors[3] = color(255,255,0,trans);
+    colors[0] = color(100,100,255); // blue
+    colors[1] = color(100,255,100); // green
+    colors[2] = color(255,100,100); // red
+    colors[3] = color(255,255,0); // yellow
   }
 
   @Override
   public void draw() {
     try {
       startFrameMillis = millis();
-      background(0);
-      //grad.setGradient(instruments,0, 0, 2);
+      background(50);
+      //grad.draw();
       lights();
       // Draw instruments
       strokeWeight(3);
@@ -71,11 +71,13 @@ public class MainApplet extends PApplet {
       }
       // Draw client coloured circles
       Instrument inst;
+      float size;
       strokeWeight(0);
       for (int i=0; i < clients.size(); i++) {
         inst = devices.get(clients.get(i));
-        fill(colors[i]);
-        ellipse(inst.getPosition().x, inst.getPosition().y, inst.getSize()*2, inst.getSize()*2);
+        fill(colors[i], alpha);
+        size = inst.getSize()*inst.getScale()*2;
+        ellipse(inst.getPosition().x, inst.getPosition().y, size, size);
       }
       time = millis();
     } catch(ConcurrentModificationException cme) {}
@@ -119,6 +121,7 @@ public class MainApplet extends PApplet {
     instruments.add(synth);
     synthesizers.add(synth);
     sendLayout(synth, ip);
+    scaleInstruments();
   }
 
   private void createDrumMachine(String ip) throws Exception {
@@ -133,6 +136,12 @@ public class MainApplet extends PApplet {
     instruments.add(drums);
     drumMachines.add(drums);
     sendLayout(drums, ip);
+    scaleInstruments();
+  }
+  
+  private void scaleInstruments() {
+//    float scale = 1;
+//    for(Instrument instr : instruments) instr.setScale(scale);
   }
 
   private void changeInstrument(String ip) {

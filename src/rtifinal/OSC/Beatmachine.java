@@ -24,7 +24,9 @@ public class Beatmachine {
 
   private void createControlsPage1() {
     addControl(new Fader("/1",1));
-    addControl(new Fader("/1",2));
+    Fader f = new Fader("/1",2);
+    f.setValues(new Object[] {(float)1});
+    addControl(f);
     addControl(new Toggle("/1",1));
     addControl(new Toggle("/1",2));
     for(int i=1; i <= 12; i++) {

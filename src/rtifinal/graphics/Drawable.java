@@ -32,6 +32,14 @@ public abstract class Drawable extends Processing {
   public void setAlpha(float alpha) {
     this.alpha = alpha;
   }
+  
+  public void setScale(float scale) {
+    this.scale = scale;
+  }
+  
+  public float getScale() {
+    return scale;
+  }
 
   public PVector getPosition() {
     return position;
@@ -65,6 +73,8 @@ public abstract class Drawable extends Processing {
   protected void rotate() {
     if (bpm != 0 && sequencer) {
       angle += (p5.spentTime() * bpm * PI ) / 120000 ;
+//      angle += 0.1;
+//      if(angle > TWO_PI) angle = 0; 
     }
     p5.rotateX(angle);
   }

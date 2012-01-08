@@ -75,6 +75,12 @@ public abstract class Instrument extends Drawable {
   public void pushBump(float value) {
     if(value == 1) cube.bump();
   }
+  
+  @Override
+  public void setScale(float scale) {
+    super.setScale(scale);
+    cube.setScale(scale);
+  }
 
   public void mute(boolean mute) {
     if(mute) cube.setAlpha(150);
