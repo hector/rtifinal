@@ -24,6 +24,10 @@ public abstract class Processing {
 
   protected static float radians(float degrees) {
     return PApplet.radians(degrees);
-  }  
+  }
+
+  protected static float radians(double degrees) {
+    return PApplet.radians((float)degrees);
+  }
   
 }

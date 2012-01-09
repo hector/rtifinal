@@ -15,13 +15,17 @@ public abstract class Instrument extends Drawable {
   boolean track;  
   
   public Instrument() throws Exception {
+    this(null);
+  }
+
+  public Instrument(Integer size) throws Exception {
     super();
     layout = new Beatmachine();
     color = p5.color(230,100,30);
     track = false;
     mapLayout();
-    size = p5.height/4;
-    createCube();    
+    this.size = size != null ? size.intValue() : p5.height/4;
+    createCube(); 
   }
   
   public void oscEvent(OscMessage msg) throws Exception {
@@ -83,7 +87,7 @@ public abstract class Instrument extends Drawable {
   }
 
   public void mute(boolean mute) {
-    if(mute) cube.setAlpha(150);
+    if(mute) cube.setAlpha(100);
     else cube.setAlpha(255);
   }
   

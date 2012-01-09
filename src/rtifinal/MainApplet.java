@@ -6,15 +6,14 @@ import processing.core.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
 import java.util.*;
-import java.util.logging.Level;
 
 public class MainApplet extends PApplet {
 
   public static MainApplet applet;
   static int listeningPort = 9000;
   static int broadcastPort = 12000;
-  int time, startFrameMillis;
-  float tempo, alpha;
+  int time, startFrameMillis, instrumentSize;
+  float tempo, alpha, instrumentScale;
   Gradient grad;
   NetAddress pureData;
   OscP5 oscP5 = null;
@@ -42,10 +41,14 @@ public class MainApplet extends PApplet {
     drumMachines = new ArrayList<DrumMachine>(4);
     frameRate(25);
     grad = new Gradient();
-    size(screen.width, screen.height, P3D);
+    size(screen.width, screen.height, OPENGL);
+    hint(ENABLE_OPENGL_4X_SMOOTH);
+    noCursor();
     tempo = 120;
     initColors(); 
     alpha = 75;
+    instrumentSize = height/3;
+    instrumentScale = 1;
     time = 0;
   }
   
@@ -62,7 +65,7 @@ public class MainApplet extends PApplet {
     try {
       startFrameMillis = millis();
       background(50);
-      //grad.draw();
+      grad.draw();
       lights();
       // Draw instruments
       strokeWeight(3);
@@ -111,37 +114,56 @@ public class MainApplet extends PApplet {
 
   private void createSynthesizer(String ip) throws Exception {
     if(synthesizers.size() >= 4) return;
-    Synthesizer synth = new Synthesizer();
-    float w = width * (float)Math.random();
-    float h = height * (float)Math.random();
-    synth.setPosition(new PVector(w, h, 0));
-    synth.setBPM(tempo);
-    devices.put(ip, synth);
-    addClient(ip);
-    instruments.add(synth);
+    Synthesizer synth = new Synthesizer(instrumentSize);
+    addInstrument(ip, synth);
     synthesizers.add(synth);
-    sendLayout(synth, ip);
-    scaleInstruments();
   }
 
   private void createDrumMachine(String ip) throws Exception {
     if(drumMachines.size() >= 4) return;
-    DrumMachine drums = new DrumMachine();
-    float w = width * (float)Math.random();
-    float h = height * (float)Math.random();
-    drums.setPosition(new PVector(w, h, 0));
-    drums.setBPM(tempo);
-    devices.put(ip, drums);
-    addClient(ip);
-    instruments.add(drums);
+    DrumMachine drums = new DrumMachine(instrumentSize);
+    addInstrument(ip, drums);
     drumMachines.add(drums);
-    sendLayout(drums, ip);
+  }
+
+  private void addInstrument(String ip, Instrument instrument) {
+    instrument.setPosition(emptyPosition());
+    instrument.setBPM(tempo);
+    devices.put(ip, instrument);
+    addClient(ip);
+    instruments.add(instrument);
     scaleInstruments();
+    sendLayout(instrument, ip);
+  }
+
+  private PVector emptyPosition() {
+    PVector position = new PVector(width/2, height/2, 0);
+    float margin = instrumentSize*instrumentScale;
+    float mWidth = width - 2*margin;
+    float mHeight = height - 2*margin;
+    float distance;
+    boolean found = true;
+    int i = 0;
+    while(i < 100) {
+      position = new PVector(mWidth * (float)Math.random() + margin, 
+                            mHeight * (float)Math.random() + margin, 0);
+      for(Instrument instr : instruments) {
+        distance = (float) (instr.getSize() * instr.getScale() * 1.5);
+        if (position.dist(instr.getPosition()) < distance) {
+          found = false;
+          break;
+        }
+      }
+      if (found) i = 100;
+      else found = true;
+      i++;
+    }
+    return position;
   }
   
   private void scaleInstruments() {
-//    float scale = 1;
-//    for(Instrument instr : instruments) instr.setScale(scale);
+    instrumentScale *= (float)0.9;
+    for(Instrument instr : instruments) instr.setScale(instrumentScale);
   }
 
   private void changeInstrument(String ip) {
@@ -170,7 +192,7 @@ public class MainApplet extends PApplet {
   private String instrPattern(String ip) {
     Instrument instr = devices.get(ip);
     int num = drumMachines.indexOf(instr) + 1;
-    if (num == 0) num = synthesizers.indexOf(instr) + 4;
+    if (num == 0) num = synthesizers.indexOf(instr) + 5;
     return "/"+num;
   }
 

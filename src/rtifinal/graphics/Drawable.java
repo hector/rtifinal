@@ -4,7 +4,7 @@ import processing.core.*;
 
 public abstract class Drawable extends Processing {
 
-  int color;
+  int color, strokeColor;
   PVector position; // center of the drawable
   float alpha, angle, bpm, scale, tempScale;
   boolean sequencer, visible;
@@ -17,6 +17,7 @@ public abstract class Drawable extends Processing {
     angle = 0;
     bpm = 0;
     scale = 1;
+    tempScale = 1;
     sequencer = false;
     visible = true;
   }
@@ -27,6 +28,9 @@ public abstract class Drawable extends Processing {
 
   public void setColor(int color) {
     this.color = color;
+    p5.colorMode(p5.HSB);
+    strokeColor = p5.color(p5.hue(color), p5.saturation(color)+50, p5.brightness(color)+80);
+    p5.colorMode(p5.RGB);
   }
 
   public void setAlpha(float alpha) {
@@ -63,7 +67,7 @@ public abstract class Drawable extends Processing {
   protected void selfDraw() {
     if(!visible) return;
     p5.fill(color, alpha);
-    p5.stroke(color, alpha);
+    p5.stroke(strokeColor, alpha);
   }
 
   protected void translate() {
@@ -83,7 +87,7 @@ public abstract class Drawable extends Processing {
     float s = scale;
     if(tempScale > scale) {
       s = tempScale;
-      tempScale = (float) (tempScale*0.9);
+      tempScale *= (float)0.96;
     }
     p5.scale(s);
   }
