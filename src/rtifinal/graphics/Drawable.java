@@ -44,6 +44,14 @@ public abstract class Drawable extends Processing {
   public float getScale() {
     return scale;
   }
+  
+  public void setTempScale(float tempScale) {
+    this.tempScale = tempScale;
+  }
+  
+  public float getTempScale() {
+    return tempScale;
+  }
 
   public PVector getPosition() {
     return position;
@@ -93,7 +101,12 @@ public abstract class Drawable extends Processing {
   }
   
   public void bump() {
-    tempScale = (float) (scale * 1.25);
+    bump((float)0.5);
+  }
+  
+  // Percentage that the drawable increases (1 -> 100%)
+  public void bump(float bumpScale) {
+    tempScale = (float) (scale * (1 + bumpScale));
   }
 
   public void setBPM(float bpm) {

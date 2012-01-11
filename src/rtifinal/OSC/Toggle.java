@@ -20,6 +20,10 @@ public class Toggle extends ControlX {
   @Override
   protected void copyValues(Object[] args) {
     for(int i=0; i < values.length; i++) args[i] = boolValue(i);
-  }  
+  } 
+  
+  public boolean boolValue() {
+    return boolValue(0);
+  }
 
 }

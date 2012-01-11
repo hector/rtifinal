@@ -3,9 +3,8 @@ package rtifinal.instruments;
 import java.util.ArrayList;
 import oscP5.OscMessage;
 import processing.core.PVector;
-import rtifinal.OSC.Beatmachine;
-import rtifinal.graphics.Drawable;
-import rtifinal.graphics.MagicCube;
+import rtifinal.OSC.*;
+import rtifinal.graphics.*;
 
 public abstract class Instrument extends Drawable {
   
@@ -21,9 +20,10 @@ public abstract class Instrument extends Drawable {
   public Instrument(Integer size) throws Exception {
     super();
     layout = new Beatmachine();
+    mapLayout();
+    volumeFader().setValues((float)1);    
     color = p5.color(230,100,30);
     track = false;
-    mapLayout();
     this.size = size != null ? size.intValue() : p5.height/4;
     createCube(); 
   }
@@ -39,6 +39,7 @@ public abstract class Instrument extends Drawable {
   private void mapLayout() throws Exception {
     layout.getControl("/1/toggle1").map(this, "sequencer");
     layout.getControl("/1/toggle2").map(this, "mute");
+    layout.getControl("/1/fader2").map(this, "volume");
     layout.getControl("/1/push1").map(this, "pushBump");
     layout.getControl("/1/push2").map(this, "pushBump");
     layout.getControl("/1/push3").map(this, "pushBump");
@@ -77,7 +78,7 @@ public abstract class Instrument extends Drawable {
   }  
   
   public void pushBump(float value) {
-    if(value == 1) cube.bump();
+    if(value == 1) bump();
   }
   
   @Override
@@ -87,8 +88,18 @@ public abstract class Instrument extends Drawable {
   }
 
   public void mute(boolean mute) {
-    if(mute) cube.setAlpha(100);
-    else cube.setAlpha(255);
+    if(mute) setAlpha(25);
+    else volume(volumeFader().getValue());
+  }
+  
+  public void volume(float volume) {
+    if(!muteToggle().boolValue()) setAlpha(25+(255-25)*volume);
+  }
+  
+  @Override
+  public void setAlpha(float alpha) {
+    super.setAlpha(alpha);
+    cube.setAlpha(alpha);
   }
   
   // Enable/disable effect
@@ -133,6 +144,22 @@ public abstract class Instrument extends Drawable {
   
   public int getSize() {
     return size;
+  }
+  
+  @Override
+  public void bump(float bumpScale) {
+    float volume = volumeFader().getValue();
+    bumpScale *= volume;
+    super.bump(bumpScale);
+    cube.bump(bumpScale);
+  }  
+  
+  protected Fader volumeFader() {
+    return (Fader) layout.getControl("/1/fader2");
+  }  
+  
+  protected Toggle muteToggle() {
+    return (Toggle) layout.getControl("/1/toggle2");
   }
 
 }

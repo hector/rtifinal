@@ -16,5 +16,9 @@ public abstract class ControlX extends Control {
     values = new Object[] {(float)0};
     valuesClass = new Class[] {float.class};
   }
+  
+  public float getValue() {
+    return (Float) values[0];
+  }
 
 }
