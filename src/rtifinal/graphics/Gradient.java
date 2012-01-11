@@ -59,7 +59,7 @@ public class Gradient extends Processing {
         s3 = 128 + 128 * sin(radians((xc + yc + timeDisplacement * 5) / 2));
         s = (s1 + s2 + s3) / 3;
         hue = s;
-        saturation = 60;
+        saturation = 200;
         brightness = 255;
         bgImage.pixels[x + y * bgImage.width] = p5.color(hue, saturation, brightness);
       }
