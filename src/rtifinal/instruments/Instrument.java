@@ -129,8 +129,7 @@ public abstract class Instrument extends Drawable {
   
   public void angleY(float y, float x) {
     if (accelerometer) {
-      DecimalFormat format = new DecimalFormat("#.#");
-      float angle = Float.valueOf(format.format(-x * p5.PI));
+      float angle = Math.round(-x * p5.PI * 10) / (float)10;
       this.setAngleY(angle);
     }
   }
