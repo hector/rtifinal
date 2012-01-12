@@ -6,7 +6,7 @@ public abstract class Drawable extends Processing {
 
   int color, strokeColor;
   PVector position; // center of the drawable
-  float alpha, angle, bpm, scale, tempScale;
+  float alpha, angle, angleY, bpm, scale, tempScale;
   boolean sequencer, visible;
 
   public Drawable() {
@@ -15,6 +15,7 @@ public abstract class Drawable extends Processing {
     alpha = 255;
     position = new PVector(0, 0, 0);
     angle = 0;
+    angleY = 0;
     bpm = 0;
     scale = 1;
     tempScale = 1;
@@ -44,6 +45,14 @@ public abstract class Drawable extends Processing {
   public float getScale() {
     return scale;
   }
+  
+  public void setTempScale(float tempScale) {
+    this.tempScale = tempScale;
+  }
+  
+  public float getTempScale() {
+    return tempScale;
+  }
 
   public PVector getPosition() {
     return position;
@@ -51,6 +60,10 @@ public abstract class Drawable extends Processing {
 
   public void setPosition(PVector position) {
     this.position = position;
+  }
+  
+  public void setAngleY(float angle) {
+    this.angleY = angle;
   }
 
   public void draw() {
@@ -76,11 +89,12 @@ public abstract class Drawable extends Processing {
 
   protected void rotate() {
     if (bpm != 0 && sequencer) {
-      angle += (p5.spentTime() * bpm * PI ) / 120000 ;
+      angle += (p5.spentTime() * bpm * PI ) / 60000 ; // 180 degrees per beat
 //      angle += 0.1;
 //      if(angle > TWO_PI) angle = 0; 
     }
     p5.rotateX(angle);
+    p5.rotateY(angleY);
   }
   
   protected void scale() {
@@ -93,7 +107,12 @@ public abstract class Drawable extends Processing {
   }
   
   public void bump() {
-    tempScale = (float) (scale * 1.25);
+    bump((float)0.5);
+  }
+  
+  // Percentage that the drawable increases (1 -> 100%)
+  public void bump(float bumpScale) {
+    tempScale = (float) (scale * (1 + bumpScale));
   }
 
   public void setBPM(float bpm) {
