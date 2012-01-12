@@ -18,11 +18,11 @@ public class MainApplet extends PApplet {
   Gradient grad;
   NetAddress pureData;
   OscP5 oscP5 = null;
-  ArrayList<Instrument> instruments;
-  ArrayList<Synthesizer> synthesizers;
-  ArrayList<DrumMachine> drumMachines;
-  HashMap<String, Instrument> devices;
-  ArrayList<String> clients;
+  List<Instrument> instruments;
+  List<Synthesizer> synthesizers;
+  List<DrumMachine> drumMachines;
+  Map<String, Instrument> devices;
+  List<String> clients;
   int[] colors;
 
   // main method to launch this Processing sketch from computer
@@ -35,11 +35,11 @@ public class MainApplet extends PApplet {
     MainApplet.applet = this;
     if(oscP5 == null) oscP5 = new OscP5(this, listeningPort, OscP5.UDP);
     pureData = new NetAddress("127.0.0.1", broadcastPort);
-    devices = new HashMap<String, Instrument>();
-    clients = new ArrayList<String>(4);
-    instruments = new ArrayList<Instrument>(8);
-    synthesizers = new ArrayList<Synthesizer>(4);
-    drumMachines = new ArrayList<DrumMachine>(4);
+    devices = Collections.synchronizedMap(new HashMap<String, Instrument>());
+    clients = Collections.synchronizedList(new ArrayList<String>(4));
+    instruments = Collections.synchronizedList(new ArrayList<Instrument>(8));
+    synthesizers = Collections.synchronizedList(new ArrayList<Synthesizer>(4));
+    drumMachines = Collections.synchronizedList(new ArrayList<DrumMachine>(4));
     frameRate(60);
     grad = new Gradient();
     size(screen.width, screen.height, OPENGL);
@@ -76,7 +76,6 @@ public class MainApplet extends PApplet {
       // Draw client coloured circles
       Instrument inst;
       float size;
-      strokeWeight(2);
       stroke(255, alpha);
       for (int i=0; i < clients.size(); i++) {
         inst = devices.get(clients.get(i));
@@ -110,7 +109,7 @@ public class MainApplet extends PApplet {
           instrument.oscEvent(msg);
           // Forward all messages to pure data
           msg.setAddrPattern(ip2Pattern(ip) + msg.addrPattern());
-          oscP5.send(msg, pureData); 
+          oscSendPD(msg);
         }        
       }
     } catch(ConcurrentModificationException cme) {
@@ -135,7 +134,7 @@ public class MainApplet extends PApplet {
   }
 
   private void addInstrument(String ip, Instrument instrument) {
-    instrument.setPosition(emptyPosition());
+    instrument.setInitialPosition(emptyPosition());
     instrument.setBPM(tempo);
     devices.put(ip, instrument);
     addClient(ip);
@@ -243,6 +242,10 @@ public class MainApplet extends PApplet {
     NetAddress dest = new NetAddress(ip, broadcastPort);
     oscSend(msg, dest);
   }  
+  
+  public void oscSendPD(OscMessage msg) {
+    oscP5.send(msg, pureData); 
+  }
 
   public void oscSend(ArrayList<OscMessage> msgs, String ip) {
     NetAddress dest = new NetAddress(ip, broadcastPort);
