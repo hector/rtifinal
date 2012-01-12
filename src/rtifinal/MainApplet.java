@@ -1,16 +1,11 @@
 package rtifinal;
 
-import java.awt.DisplayMode;
-import java.awt.Frame;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import oscP5.*;
 import netP5.*;
 import processing.core.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
 import java.util.*;
-import rtifinal.OSC.Fader;
 
 public class MainApplet extends PApplet {
 

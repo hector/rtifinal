@@ -69,8 +69,7 @@ public abstract class Instrument extends Drawable {
   }
   
   private void defaultLayout() {
-    volumeFader().setValues((float)1); 
-    layout.getControl("/4/toggle4").setValues((float)1);
+    volumeFader().setValues((float)1);
   }
 
   private void createCube() {
