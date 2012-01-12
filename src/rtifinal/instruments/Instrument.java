@@ -22,9 +22,9 @@ public abstract class Instrument extends Drawable {
     super();
     layout = new Beatmachine();
     mapLayout();
-    volumeFader().setValues((float)1);    
+    defaultLayout();   
     color = p5.color(230,100,30);
-    track = false;
+    track = true;
     accelerometer = false;
     this.size = size != null ? size.intValue() : p5.height/4;
     createCube(); 
@@ -63,10 +63,14 @@ public abstract class Instrument extends Drawable {
     layout.getControl("/3/rotary4").map(this, "effectParam", 3);
     layout.getControl("/3/rotary5").map(this, "effectParam", 4);
     layout.getControl("/3/rotary6").map(this, "effectParam", 5);
-    layout.getControl("/4/toggle4").map(this, "trackXY");
-    layout.getControl("/4/toggle3").map(this, "trackAccelerometer");
+    layout.getControl("/4/toggle4").map(this, "trackAccelerometer");
     layout.getControl("/4/xy").map(this, "setPositionFromXY");
     layout.getControl("/accxyz").map(this, "angleY");
+  }
+  
+  private void defaultLayout() {
+    volumeFader().setValues((float)1); 
+    layout.getControl("/4/toggle4").setValues((float)1);
   }
 
   private void createCube() {
@@ -139,6 +143,15 @@ public abstract class Instrument extends Drawable {
   
   public void setPositionFromXY(float y, float x) {
     if(track) setPosition(new PVector(p5.width*x, p5.height*(1-y)));
+  }
+  
+  public void setInitialPosition(PVector position) {
+    setPosition(position);
+    float x = position.x/p5.width;
+    float y = 1 - (position.y / p5.height);
+    Control pad = layout.getControl("/4/xy");
+    pad.setValues(y,x);
+    p5.oscSendPD(pad.oscMessage());
   }
   
   @Override
