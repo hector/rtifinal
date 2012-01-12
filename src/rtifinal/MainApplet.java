@@ -6,6 +6,7 @@ import processing.core.*;
 import rtifinal.instruments.*;
 import rtifinal.graphics.*;
 import java.util.*;
+import rtifinal.OSC.Fader;
 
 public class MainApplet extends PApplet {
 
@@ -209,6 +210,25 @@ public class MainApplet extends PApplet {
     if(instrNum > 4) return synthesizers.get(instrNum-5);
     else return drumMachines.get(instrNum-1);
   } 
+  
+  public void globalTempo(float tempo, DrumMachine drums) {
+    float bpm = tempo * 240; // Tempo from touchOSC slider to BPM
+    this.tempo = bpm; // Save to global tempo
+    for(Instrument instr : instruments) {
+      instr.setBPM(bpm); // Set bpm to all instruments
+      if(instr.getClass().equals(drums.getClass()) && instr != drums) {
+        instr.getLayout().getControl("/1/fader1").setValues(tempo); // Set tempo to drumMachine layouts
+      }
+    }
+    OscMessage msg;
+    for(String ip : clients) {
+      Instrument instr = devices.get(ip);
+      if(instr.getClass().equals(drums.getClass()) && instr != drums) {
+        msg = instr.getLayout().getControl("/1/fader1").oscMessage();
+        oscSend(msg, ip); // Send new tempo to clients with drumMachines
+      }
+    }
+  }
 
   private void sendLayout(Instrument instrument, String ip) {
     ArrayList<OscMessage> msgs = instrument.oscLayoutMessages();
@@ -218,6 +238,11 @@ public class MainApplet extends PApplet {
   public void oscSend(OscMessage msg, NetAddress dest) {
     oscP5.send(msg, dest);
   }
+  
+  public void oscSend(OscMessage msg, String ip) {
+    NetAddress dest = new NetAddress(ip, broadcastPort);
+    oscSend(msg, dest);
+  }  
 
   public void oscSend(ArrayList<OscMessage> msgs, String ip) {
     NetAddress dest = new NetAddress(ip, broadcastPort);

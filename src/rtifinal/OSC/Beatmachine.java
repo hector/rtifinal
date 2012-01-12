@@ -20,6 +20,7 @@ public class Beatmachine {
     createControlsPage2();
     createControlsPage3();
     createControlsPage4();
+    addControl(new Accelerometer());
   }
 
   private void createControlsPage1() {

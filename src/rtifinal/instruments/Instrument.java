@@ -1,5 +1,6 @@
 package rtifinal.instruments;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import oscP5.OscMessage;
 import processing.core.PVector;
@@ -11,7 +12,7 @@ public abstract class Instrument extends Drawable {
   Beatmachine layout;
   MagicCube cube;
   int color, size;
-  boolean track;  
+  boolean track, accelerometer;  
   
   public Instrument() throws Exception {
     this(null);
@@ -24,6 +25,7 @@ public abstract class Instrument extends Drawable {
     volumeFader().setValues((float)1);    
     color = p5.color(230,100,30);
     track = false;
+    accelerometer = false;
     this.size = size != null ? size.intValue() : p5.height/4;
     createCube(); 
   }
@@ -62,7 +64,9 @@ public abstract class Instrument extends Drawable {
     layout.getControl("/3/rotary5").map(this, "effectParam", 4);
     layout.getControl("/3/rotary6").map(this, "effectParam", 5);
     layout.getControl("/4/toggle4").map(this, "trackXY");
+    layout.getControl("/4/toggle3").map(this, "trackAccelerometer");
     layout.getControl("/4/xy").map(this, "setPositionFromXY");
+    layout.getControl("/accxyz").map(this, "angleY");
   }
 
   private void createCube() {
@@ -115,6 +119,24 @@ public abstract class Instrument extends Drawable {
     this.track = track;
   }
   
+  public void trackAccelerometer(boolean track) {
+    this.accelerometer = track;
+  }
+  
+  public void angleY(float y, float x) {
+    if (accelerometer) {
+      DecimalFormat format = new DecimalFormat("#.#");
+      float angle = Float.valueOf(format.format(-x * p5.PI));
+      this.setAngleY(angle);
+    }
+  }
+  
+  @Override
+  public void setAngleY(float angle) {
+    super.setAngleY(angle);
+    cube.setAngleY(angle);
+  }  
+  
   public void setPositionFromXY(float y, float x) {
     if(track) setPosition(new PVector(p5.width*x, p5.height*(1-y)));
   }
@@ -153,6 +175,10 @@ public abstract class Instrument extends Drawable {
     super.bump(bumpScale);
     cube.bump(bumpScale);
   }  
+  
+  public Beatmachine getLayout() {
+    return layout;
+  }
   
   protected Fader volumeFader() {
     return (Fader) layout.getControl("/1/fader2");
