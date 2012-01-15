@@ -1,0 +1,43 @@
+#N canvas 13 39 843 490 12;
+#X obj 129 60 inlet~;
+#X obj 129 289 outlet~;
+#X text 9 3 ABSTRACTION;
+#X text 431 65 dry (%);
+#X text 538 61 wet (%);
+#X text 316 67 delay (msec);
+#X obj 128 201 monoChorus;
+#X obj 236 61 inlet~;
+#X obj 235 285 outlet~;
+#X text 126 35 Left ch;
+#X text 233 36 Right ch;
+#X text 126 35 Left ch;
+#X text 385 7 Chorus effect \, borrowed from: http://www.jlpublishing.com/Csound.htm
+;
+#X obj 235 201 monoChorus;
+#X obj 303 -24 vsl 15 128 0 1000 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 6350 1;
+#X obj 412 31 vsl 15 128 0 100 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 0 1;
+#X obj 502 56 vsl 15 128 0 100 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 10599 1;
+#X floatatom 344 112 5 0 0 0 - - -;
+#X floatatom 558 184 5 0 0 0 - - -;
+#X msg 186 -9 500;
+#X obj 148 -27 loadbang;
+#X msg 449 238 83.46;
+#X connect 0 0 6 0;
+#X connect 6 0 1 0;
+#X connect 7 0 13 0;
+#X connect 13 0 8 0;
+#X connect 14 0 13 1;
+#X connect 14 0 6 1;
+#X connect 14 0 17 0;
+#X connect 15 0 6 2;
+#X connect 15 0 13 2;
+#X connect 16 0 13 3;
+#X connect 16 0 6 3;
+#X connect 16 0 18 0;
+#X connect 19 0 14 0;
+#X connect 20 0 19 0;
+#X connect 20 0 21 0;
+#X connect 21 0 16 0;

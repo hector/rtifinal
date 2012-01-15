@@ -21,7 +21,7 @@ public class MainApplet extends PApplet {
   ArrayList<Synthesizer> synthesizers;
   ArrayList<DrumMachine> drumMachines;
   HashMap<String, Instrument> devices;
-  ArrayList<String> clients;
+  List<String> clients;
   int[] colors;
 
   // main method to launch this Processing sketch from computer
@@ -39,7 +39,7 @@ public class MainApplet extends PApplet {
     instruments = new ArrayList<Instrument>(8);
     synthesizers = new ArrayList<Synthesizer>(4);
     drumMachines = new ArrayList<DrumMachine>(4);
-    frameRate(25);
+    frameRate(60);
     grad = new Gradient();
     size(screen.width, screen.height, OPENGL);
     hint(ENABLE_OPENGL_4X_SMOOTH);
@@ -50,7 +50,7 @@ public class MainApplet extends PApplet {
     instrumentSize = height/3;
     instrumentScale = 1;
     time = 0;
-  }
+  }  
   
   private void initColors() {
     colors = new int[4];
@@ -75,7 +75,7 @@ public class MainApplet extends PApplet {
       // Draw client coloured circles
       Instrument inst;
       float size;
-      strokeWeight(0);
+      stroke(255, alpha);
       for (int i=0; i < clients.size(); i++) {
         inst = devices.get(clients.get(i));
         fill(colors[i], alpha);
@@ -89,21 +89,27 @@ public class MainApplet extends PApplet {
   public void oscEvent(OscMessage msg) throws Exception {
     try {
       String ip = msg.netAddress().address();
-      // Handle instrument creation/swaping
-      if (msg.checkAddrPattern("/1/push12") && msg.get(0).floatValue() == 1.0) {
-        createSynthesizer(ip);
-      } else if (msg.checkAddrPattern("/1/push11") && msg.get(0).floatValue() == 1.0) {
-        createDrumMachine(ip);
-      } else if (msg.checkAddrPattern("/1/push10") && msg.get(0).floatValue() == 1.0) {
-        changeInstrument(ip);
-      }
-      // Send message to the corresponding instrument
-      Instrument instrument = devices.get(ip);
-      if (instrument != null) {
-        instrument.oscEvent(msg);
-        // Forward all messages to pure data
-        msg.setAddrPattern(instrPattern(ip) + msg.addrPattern());
-        oscP5.send(msg, pureData); 
+      if("127.0.0.1".equals(ip)) {
+        Instrument instr = instrumentFromPattern(msg);
+        instr.bump();
+      } else {
+        // Handle instrument creation/swaping
+        if (msg.checkAddrPattern("/1/push12") && msg.get(0).floatValue() == 1.0) {
+          createSynthesizer(ip);
+        } else if (msg.checkAddrPattern("/1/push11") && msg.get(0).floatValue() == 1.0) {
+          createDrumMachine(ip);
+        } else if (msg.checkAddrPattern("/1/push10") && msg.get(0).floatValue() == 1.0) {
+          changeInstrument(ip);
+        }
+
+        // Send message to the corresponding instrument
+        Instrument instrument = devices.get(ip);
+        if (instrument != null) {
+          instrument.oscEvent(msg);
+          // Forward all messages to pure data
+          msg.setAddrPattern(ip2Pattern(ip) + msg.addrPattern());
+          oscSendPD(msg);
+        }        
       }
     } catch(ConcurrentModificationException cme) {
     } catch(Exception e) {
@@ -127,7 +133,7 @@ public class MainApplet extends PApplet {
   }
 
   private void addInstrument(String ip, Instrument instrument) {
-    instrument.setPosition(emptyPosition());
+    instrument.setInitialPosition(emptyPosition());
     instrument.setBPM(tempo);
     devices.put(ip, instrument);
     addClient(ip);
@@ -189,11 +195,37 @@ public class MainApplet extends PApplet {
     if(!clients.contains(ip)) clients.add(ip);
   }
   
-  private String instrPattern(String ip) {
+  private String ip2Pattern(String ip) {
     Instrument instr = devices.get(ip);
     int num = drumMachines.indexOf(instr) + 1;
     if (num == 0) num = synthesizers.indexOf(instr) + 5;
     return "/"+num;
+  }
+  
+  private Instrument instrumentFromPattern(OscMessage msg) {
+    String pattern = msg.addrPattern();
+    int instrNum = new Integer(pattern.substring(1,2));
+    if(instrNum > 4) return synthesizers.get(instrNum-5);
+    else return drumMachines.get(instrNum-1);
+  } 
+  
+  public void globalTempo(float tempo, DrumMachine drums) {
+    float bpm = tempo * 240; // Tempo from touchOSC slider to BPM
+    this.tempo = bpm; // Save to global tempo
+    for(Instrument instr : instruments) {
+      instr.setBPM(bpm); // Set bpm to all instruments
+      if(instr.getClass().equals(drums.getClass()) && instr != drums) {
+        instr.getLayout().getControl("/1/fader1").setValues(tempo); // Set tempo to drumMachine layouts
+      }
+    }
+    OscMessage msg;
+    for(String ip : clients) {
+      Instrument instr = devices.get(ip);
+      if(instr.getClass().equals(drums.getClass()) && instr != drums) {
+        msg = instr.getLayout().getControl("/1/fader1").oscMessage();
+        oscSend(msg, ip); // Send new tempo to clients with drumMachines
+      }
+    }
   }
 
   private void sendLayout(Instrument instrument, String ip) {
@@ -203,6 +235,15 @@ public class MainApplet extends PApplet {
 
   public void oscSend(OscMessage msg, NetAddress dest) {
     oscP5.send(msg, dest);
+  }
+  
+  public void oscSend(OscMessage msg, String ip) {
+    NetAddress dest = new NetAddress(ip, broadcastPort);
+    oscSend(msg, dest);
+  }  
+  
+  public void oscSendPD(OscMessage msg) {
+    oscP5.send(msg, pureData); 
   }
 
   public void oscSend(ArrayList<OscMessage> msgs, String ip) {

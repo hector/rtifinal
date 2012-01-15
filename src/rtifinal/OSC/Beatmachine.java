@@ -20,15 +20,12 @@ public class Beatmachine {
     createControlsPage2();
     createControlsPage3();
     createControlsPage4();
+    addControl(new Accelerometer());
   }
 
   private void createControlsPage1() {
-    Fader f = new Fader("/1",1);
-    f.setValues(new Object[] {(float)0.5});
-    addControl(f);
-    f = new Fader("/1",2);
-    f.setValues(new Object[] {(float)1});
-    addControl(f);
+    addControl(new Fader("/1",1));
+    addControl(new Fader("/1",2));
     addControl(new Toggle("/1",1));
     addControl(new Toggle("/1",2));
     for(int i=1; i <= 12; i++) {

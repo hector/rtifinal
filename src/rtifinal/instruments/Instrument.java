@@ -1,18 +1,18 @@
 package rtifinal.instruments;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import oscP5.OscMessage;
 import processing.core.PVector;
-import rtifinal.OSC.Beatmachine;
-import rtifinal.graphics.Drawable;
-import rtifinal.graphics.MagicCube;
+import rtifinal.OSC.*;
+import rtifinal.graphics.*;
 
 public abstract class Instrument extends Drawable {
   
   Beatmachine layout;
   MagicCube cube;
   int color, size;
-  boolean track;  
+  boolean track, accelerometer;  
   
   public Instrument() throws Exception {
     this(null);
@@ -21,9 +21,11 @@ public abstract class Instrument extends Drawable {
   public Instrument(Integer size) throws Exception {
     super();
     layout = new Beatmachine();
-    color = p5.color(230,100,30);
-    track = false;
     mapLayout();
+    defaultLayout();   
+    color = p5.color(230,100,30);
+    track = true;
+    accelerometer = false;
     this.size = size != null ? size.intValue() : p5.height/4;
     createCube(); 
   }
@@ -39,6 +41,7 @@ public abstract class Instrument extends Drawable {
   private void mapLayout() throws Exception {
     layout.getControl("/1/toggle1").map(this, "sequencer");
     layout.getControl("/1/toggle2").map(this, "mute");
+    layout.getControl("/1/fader2").map(this, "volume");
     layout.getControl("/1/push1").map(this, "pushBump");
     layout.getControl("/1/push2").map(this, "pushBump");
     layout.getControl("/1/push3").map(this, "pushBump");
@@ -60,8 +63,13 @@ public abstract class Instrument extends Drawable {
     layout.getControl("/3/rotary4").map(this, "effectParam", 3);
     layout.getControl("/3/rotary5").map(this, "effectParam", 4);
     layout.getControl("/3/rotary6").map(this, "effectParam", 5);
-    layout.getControl("/4/toggle4").map(this, "trackXY");
+    layout.getControl("/4/toggle4").map(this, "trackAccelerometer");
     layout.getControl("/4/xy").map(this, "setPositionFromXY");
+    layout.getControl("/accxyz").map(this, "angleY");
+  }
+  
+  private void defaultLayout() {
+    volumeFader().setValues((float)1);
   }
 
   private void createCube() {
@@ -77,7 +85,7 @@ public abstract class Instrument extends Drawable {
   }  
   
   public void pushBump(float value) {
-    if(value == 1) cube.bump();
+    if(value == 1) bump();
   }
   
   @Override
@@ -87,8 +95,18 @@ public abstract class Instrument extends Drawable {
   }
 
   public void mute(boolean mute) {
-    if(mute) cube.setAlpha(100);
-    else cube.setAlpha(255);
+    if(mute) setAlpha(25);
+    else volume(volumeFader().getValue());
+  }
+  
+  public void volume(float volume) {
+    if(!muteToggle().boolValue()) setAlpha(25+(255-25)*volume);
+  }
+  
+  @Override
+  public void setAlpha(float alpha) {
+    super.setAlpha(alpha);
+    cube.setAlpha(alpha);
   }
   
   // Enable/disable effect
@@ -104,8 +122,34 @@ public abstract class Instrument extends Drawable {
     this.track = track;
   }
   
+  public void trackAccelerometer(boolean track) {
+    this.accelerometer = track;
+  }
+  
+  public void angleY(float y, float x) {
+    if (accelerometer) {
+      float angle = Math.round(-x * p5.PI * 10) / (float)10;
+      this.setAngleY(angle);
+    }
+  }
+  
+  @Override
+  public void setAngleY(float angle) {
+    super.setAngleY(angle);
+    cube.setAngleY(angle);
+  }  
+  
   public void setPositionFromXY(float y, float x) {
     if(track) setPosition(new PVector(p5.width*x, p5.height*(1-y)));
+  }
+  
+  public void setInitialPosition(PVector position) {
+    setPosition(position);
+    float x = position.x/p5.width;
+    float y = 1 - (position.y / p5.height);
+    Control pad = layout.getControl("/4/xy");
+    pad.setValues(y,x);
+    p5.oscSendPD(pad.oscMessage());
   }
   
   @Override
@@ -133,6 +177,26 @@ public abstract class Instrument extends Drawable {
   
   public int getSize() {
     return size;
+  }
+  
+  @Override
+  public void bump(float bumpScale) {
+    float volume = volumeFader().getValue();
+    bumpScale *= volume;
+    super.bump(bumpScale);
+    cube.bump(bumpScale);
+  }  
+  
+  public Beatmachine getLayout() {
+    return layout;
+  }
+  
+  protected Fader volumeFader() {
+    return (Fader) layout.getControl("/1/fader2");
+  }  
+  
+  protected Toggle muteToggle() {
+    return (Toggle) layout.getControl("/1/toggle2");
   }
 
 }
